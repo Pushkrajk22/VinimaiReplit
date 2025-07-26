@@ -150,4 +150,20 @@ Preferred communication style: Simple, everyday language.
 - **Fixed TypeScript Issues**: Resolved authentication and database query type errors
 - **Environment Setup**: Added RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables
 
+## Deployment Options
+
+### Replit Deployments (Recommended)
+- **Custom Domain Support**: Yes, you can connect your own domain
+- **Automatic HTTPS**: SSL certificates automatically provisioned
+- **Global CDN**: Built-in content delivery network
+- **Auto-scaling**: Handles traffic spikes automatically
+- **Database Included**: PostgreSQL database is included
+- **One-click Deploy**: Deploy directly from this Replit
+
+### Alternative Platforms
+- **Vercel**: Frontend deployment with serverless functions
+- **Railway**: Full-stack deployment with PostgreSQL
+- **DigitalOcean App Platform**: Managed hosting
+- **Traditional VPS**: Complete control over server
+
 The architecture supports horizontal scaling and can be easily deployed to various platforms including Replit, Vercel, or traditional VPS hosting.
