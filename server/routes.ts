@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { seedDatabase } from "./seed-data";
+import { authRateLimit, generalRateLimit, securityHeaders, requestLogger, validatePasswordStrength } from "./security-middleware";
 
 // Extend Express Request type to include user
 interface AuthenticatedRequest extends Request {
@@ -16,7 +17,11 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || "vinimai-secret-key";
+// Ensure JWT_SECRET is set for production security
+const JWT_SECRET = process.env.JWT_SECRET || "vinimai-development-secret-key";
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error("JWT_SECRET environment variable must be set in production");
+}
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -53,10 +58,24 @@ const calculateFees = (amount: number) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Authentication routes
-  app.post("/api/auth/register", async (req, res) => {
+  // Apply security middleware
+  app.use(securityHeaders);
+  app.use(requestLogger);
+  app.use('/api/', generalRateLimit);
+
+  // Authentication routes with rate limiting
+  app.post("/api/auth/register", authRateLimit, async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
+      
+      // Validate password strength
+      const passwordValidation = validatePasswordStrength(userData.password);
+      if (!passwordValidation.isValid) {
+        return res.status(400).json({ 
+          message: "Password does not meet security requirements",
+          errors: passwordValidation.errors
+        });
+      }
       
       // Check if user already exists
       const existingUser = await storage.getUserByMobile(userData.mobile);
@@ -81,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", authRateLimit, async (req, res) => {
     try {
       const { mobile, password } = req.body;
       
