@@ -74,9 +74,67 @@
   .vinimai-logo {
     background-color: var(--vinimai-blue);
     color: white;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
+    padding: 8px 16px;
+    border-radius: 8px;
     font-weight: bold;
-    font-size: 1.25rem;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+  
+  .product-card {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid hsl(var(--border));
+  }
+  
+  .product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: hsl(var(--primary));
+  }
+  
+  .category-badge {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--vinimai-light)));
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .price-tag {
+    color: hsl(var(--vinimai-blue));
+    font-weight: 700;
+    font-size: 20px;
+  }
+  
+  .btn-gradient {
+    background: linear-gradient(135deg, hsl(var(--vinimai-blue)), hsl(var(--vinimai-light)));
+    color: white;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(54, 124, 255, 0.3);
+    color: white;
+  }
+  
+  .feature-card {
+    border: 1px solid hsl(var(--border));
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .hero-section {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--vinimai-blue)), hsl(var(--vinimai-light)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

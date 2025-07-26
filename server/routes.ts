@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import { seedDatabase } from "./seed-data";
 
 // Extend Express Request type to include user
 interface AuthenticatedRequest extends Request {
@@ -524,6 +525,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(500).json({ message: "Error processing refund: " + error.message });
+    }
+  });
+
+  // Seed database route (for development)
+  app.post("/api/admin/seed-database", async (req, res) => {
+    try {
+      // Check if database is already seeded
+      const existingProducts = await storage.getProducts(1);
+      if (existingProducts.length > 0) {
+        return res.json({ message: "Database already has data" });
+      }
+
+      const result = await seedDatabase();
+      res.json({ 
+        message: "Database seeded successfully",
+        users: result.users.length,
+        products: result.products.length
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error seeding database: " + error.message });
     }
   });
 

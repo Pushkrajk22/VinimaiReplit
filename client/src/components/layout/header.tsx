@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Bell, Search, Menu, Plus } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
+import logoImage from "@assets/IMG-20250628-WA0001_1753533870884.jpg";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,9 +43,11 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <div className="vinimai-logo mr-3">
-                VINIMAI
-              </div>
+              <img 
+                src={logoImage} 
+                alt="Vinimai" 
+                className="h-10 w-auto mr-3 rounded-md"
+              />
               <span className="text-gray-600 text-sm hidden sm:block">
                 Trusted Exchange Platform
               </span>
