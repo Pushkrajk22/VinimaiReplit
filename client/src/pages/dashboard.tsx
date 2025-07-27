@@ -22,10 +22,13 @@ export default function Dashboard() {
     queryKey: ['/api/products', 'seller', user?.id],
     queryFn: async () => {
       const response = await fetch(`/api/products?sellerId=${user?.id}`, {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch products');
-      return response.json() as Product[];
+      return await response.json() as Product[];
     },
     enabled: user?.role === 'seller',
   });
@@ -35,10 +38,13 @@ export default function Dashboard() {
     queryKey: ['/api/orders', 'buyer', user?.id],
     queryFn: async () => {
       const response = await fetch(`/api/orders/buyer/${user?.id}`, {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch orders');
-      return response.json() as Order[];
+      return await response.json() as Order[];
     },
     enabled: !!user?.id,
   });
@@ -48,10 +54,13 @@ export default function Dashboard() {
     queryKey: ['/api/orders', 'seller', user?.id],
     queryFn: async () => {
       const response = await fetch(`/api/orders/seller/${user?.id}`, {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch orders');
-      return response.json() as Order[];
+      return await response.json() as Order[];
     },
     enabled: user?.role === 'seller',
   });
@@ -61,10 +70,13 @@ export default function Dashboard() {
     queryKey: ['/api/offers', 'buyer', user?.id],
     queryFn: async () => {
       const response = await fetch(`/api/offers/buyer/${user?.id}`, {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch offers');
-      return response.json() as Offer[];
+      return await response.json() as Offer[];
     },
     enabled: !!user?.id,
   });
@@ -74,10 +86,13 @@ export default function Dashboard() {
     queryKey: ['/api/offers', 'seller', user?.id],
     queryFn: async () => {
       const response = await fetch(`/api/offers/seller/${user?.id}`, {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch offers');
-      return response.json() as Offer[];
+      return await response.json() as Offer[];
     },
     enabled: user?.role === 'seller',
   });

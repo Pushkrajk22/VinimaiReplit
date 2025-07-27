@@ -45,14 +45,26 @@ export function OfferModal({ product, open, onOpenChange }: OfferModalProps) {
     mutationFn: async (data: OfferFormData) => {
       if (!product) throw new Error("No product selected");
       
-      return apiRequest("POST", "/api/offers", {
-        productId: product.id,
-        sellerId: product.sellerId,
-        amount: data.amount,
-        message: data.message,
-      }, {
-        headers: getAuthHeaders(),
+      const response = await fetch("/api/offers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          productId: product.id,
+          sellerId: product.sellerId,
+          amount: data.amount,
+          message: data.message,
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to submit offer: ${response.statusText}`);
+      }
+      
+      return response;
     },
     onSuccess: () => {
       toast({

@@ -28,10 +28,13 @@ export default function AdminPanel() {
     queryKey: ['/api/admin/products/pending'],
     queryFn: async () => {
       const response = await fetch('/api/admin/products/pending', {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch pending products');
-      return response.json() as Product[];
+      return await response.json() as Product[];
     },
   });
 
@@ -40,10 +43,13 @@ export default function AdminPanel() {
     queryKey: ['/api/admin/orders'],
     queryFn: async () => {
       const response = await fetch('/api/admin/orders', {
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to fetch orders');
-      return response.json() as Order[];
+      return await response.json() as Order[];
     },
   });
 
@@ -52,10 +58,13 @@ export default function AdminPanel() {
     mutationFn: async (productId: string) => {
       const response = await fetch(`/api/admin/products/${productId}/approve`, {
         method: 'PUT',
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
       });
       if (!response.ok) throw new Error('Failed to approve product');
-      return response.json();
+      return await response.json();
     },
     onSuccess: () => {
       toast({

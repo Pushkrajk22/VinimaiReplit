@@ -104,7 +104,7 @@ export function useAuth() {
 }
 
 // Add auth header to requests
-export function getAuthHeaders() {
+export function getAuthHeaders(): Record<string, string> {
   const token = authManager.getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

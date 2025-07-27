@@ -81,7 +81,7 @@ export function OrderTracking({ order }: OrderTrackingProps) {
                     {status.label}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {isCompleted && index < currentStatusIndex && formatDate(order.updatedAt)}
+                    {isCompleted && index < currentStatusIndex && formatDate(order.updatedAt.toString())}
                   </span>
                 </div>
               );

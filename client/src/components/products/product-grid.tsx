@@ -26,7 +26,7 @@ export function ProductGrid({ category, search, onMakeOffer }: ProductGridProps)
 
       const response = await fetch(`/api/products?${params}`);
       if (!response.ok) throw new Error('Failed to fetch products');
-      return response.json() as Product[];
+      return await response.json() as Product[];
     },
   });
 

@@ -41,7 +41,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     queryFn: async () => {
       const response = await fetch(`/api/products/${productId}`);
       if (!response.ok) throw new Error('Product not found');
-      return response.json() as Product;
+      return await response.json() as Product;
     },
   });
 
@@ -51,7 +51,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     queryFn: async () => {
       const response = await fetch(`/api/offers/product/${productId}`);
       if (!response.ok) throw new Error('Failed to fetch offers');
-      return response.json() as Offer[];
+      return await response.json() as Offer[];
     },
   });
 
