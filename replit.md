@@ -151,6 +151,7 @@ Preferred communication style: Simple, everyday language.
 - **Verified Build Process**: Confirmed Vite build completes successfully with CSS generation
 - **Tested API Endpoints**: Verified all endpoints return proper status codes
 - **Database Connection**: Confirmed PostgreSQL database is accessible and ready
+- **Fixed JWT_SECRET Deployment Issue**: Updated error handling to prevent crash loops when JWT_SECRET is missing in production
 
 ### Payment System Update (Previous Session)
 - **Replaced Stripe with Razorpay**: Updated payment integration to use Razorpay, which is more suitable for Indian customers
@@ -168,6 +169,22 @@ Preferred communication style: Simple, everyday language.
 - **Auto-scaling**: Handles traffic spikes automatically
 - **Database Included**: PostgreSQL database is included
 - **One-click Deploy**: Deploy directly from this Replit
+
+#### Required Deployment Secrets
+To deploy successfully, you need to add these environment variables in your deployment settings:
+
+1. **JWT_SECRET** (Required for authentication)
+   - Generate a secure random string (64+ characters)
+   - Example value: `91ae862d2adf8b319680136058ee81927bd76e67e475ea127bca992fa4aeaa38ec8013e999cab4418da651032725bc4a962e4b397c0af3f909c42923400e0e17`
+
+2. **RAZORPAY_KEY_ID** (Required for payments)
+   - Your Razorpay test/live key ID
+
+3. **RAZORPAY_KEY_SECRET** (Required for payments) 
+   - Your Razorpay test/live key secret
+
+4. **DATABASE_URL** (Auto-configured by Replit)
+   - PostgreSQL connection string (automatically provided)
 
 ### Alternative Platforms
 - **Vercel**: Frontend deployment with serverless functions

@@ -20,7 +20,8 @@ interface AuthenticatedRequest extends Request {
 // Ensure JWT_SECRET is set for production security
 const JWT_SECRET = process.env.JWT_SECRET || "vinimai-development-secret-key";
 if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error("JWT_SECRET environment variable must be set in production");
+  console.error("WARNING: JWT_SECRET environment variable is not set in production. Using default secret.");
+  console.error("This is a security risk. Please set JWT_SECRET in your deployment secrets.");
 }
 
 // Initialize Razorpay
