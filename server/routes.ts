@@ -42,6 +42,10 @@ const otpStore = new Map<string, { otp: string; expires: number }>();
 
 // Generate 6-digit OTP
 const generateOTP = (): string => {
+  // Use test OTP when Twilio is not configured (development mode)
+  if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+    return "123456"; // Fixed test OTP for development
+  }
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
