@@ -16,12 +16,22 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Edit3,
+  Eye,
+  IndianRupee
 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 export default function AdminPanel() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [editRequests, setEditRequests] = useState("");
 
   // Fetch pending products
   const { data: pendingProducts } = useQuery({
@@ -84,10 +94,14 @@ export default function AdminPanel() {
 
   // Reject product mutation
   const rejectProductMutation = useMutation({
-    mutationFn: async (productId: string) => {
+    mutationFn: async ({ productId, reason }: { productId: string; reason?: string }) => {
       const response = await fetch(`/api/admin/products/${productId}/reject`, {
         method: 'PUT',
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ reason }),
       });
       if (!response.ok) throw new Error('Failed to reject product');
       return response.json();
@@ -103,6 +117,36 @@ export default function AdminPanel() {
       toast({
         title: "Error",
         description: error.message || "Failed to reject product",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Request edit mutation
+  const requestEditMutation = useMutation({
+    mutationFn: async ({ productId, editRequests }: { productId: string; editRequests: string }) => {
+      const response = await fetch(`/api/admin/products/${productId}/request-edit`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ editRequests }),
+      });
+      if (!response.ok) throw new Error('Failed to request edit');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Edit Request Sent",
+        description: "The seller has been notified about the required changes.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/products/pending'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send edit request",
         variant: "destructive",
       });
     },
@@ -284,15 +328,31 @@ export default function AdminPanel() {
                           </div>
                         </div>
                         
-                        <p className="text-gray-600">{product.description}</p>
+                        <p className="text-gray-600 line-clamp-3">{product.description}</p>
                         
-                        <div className="flex items-center justify-between">
-                          <span className="text-2xl font-bold text-primary">
-                            {formatPrice(product.price)}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            Listed: {new Date(product.createdAt).toLocaleDateString()}
-                          </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-2xl font-bold text-primary">
+                              {formatPrice(product.price)}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              Listed: {new Date(product.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          
+                          {/* Additional product info */}
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <span>Condition: {product.condition || 'Not specified'}</span>
+                            <span>•</span>
+                            <span>Location: {product.location || 'Not specified'}</span>
+                          </div>
+                          
+                          {product.images && product.images.length > 1 && (
+                            <div className="flex items-center space-x-1 text-sm text-gray-500">
+                              <Eye className="h-4 w-4" />
+                              <span>{product.images.length} images</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -307,19 +367,102 @@ export default function AdminPanel() {
                           Approve
                         </Button>
                         
-                        <Button
-                          onClick={() => rejectProductMutation.mutate(product.id)}
-                          disabled={rejectProductMutation.isPending}
-                          variant="outline"
-                          className="w-full border-red-300 text-red-600 hover:bg-red-50"
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setRejectReason("");
+                              }}
+                            >
+                              <XCircle className="h-4 w-4 mr-2" />
+                              Reject
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Reject Product</DialogTitle>
+                              <DialogDescription>
+                                Provide a reason for rejecting "{product.title}". The seller will be notified.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor="reason">Rejection Reason</Label>
+                                <Textarea
+                                  id="reason"
+                                  placeholder="e.g., Images are unclear, description needs more details, price seems unreasonable..."
+                                  value={rejectReason}
+                                  onChange={(e) => setRejectReason(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                onClick={() => {
+                                  rejectProductMutation.mutate({ 
+                                    productId: product.id, 
+                                    reason: rejectReason 
+                                  });
+                                }}
+                                disabled={rejectProductMutation.isPending}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Reject Product
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
 
-                        <Button variant="outline" className="w-full">
-                          View Details
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              className="w-full"
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setEditRequests("");
+                              }}
+                            >
+                              <Edit3 className="h-4 w-4 mr-2" />
+                              Request Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Request Product Edit</DialogTitle>
+                              <DialogDescription>
+                                Specify what changes are needed for "{product.title}". The seller will be notified.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor="edits">Required Changes</Label>
+                                <Textarea
+                                  id="edits"
+                                  placeholder="e.g., Please add more product images, update the description with specifications, adjust the pricing..."
+                                  value={editRequests}
+                                  onChange={(e) => setEditRequests(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                onClick={() => {
+                                  requestEditMutation.mutate({ 
+                                    productId: product.id, 
+                                    editRequests: editRequests 
+                                  });
+                                }}
+                                disabled={requestEditMutation.isPending || !editRequests.trim()}
+                              >
+                                Send Edit Request
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </CardContent>

@@ -268,14 +268,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const product = await storage.createProduct({
         ...productData,
         sellerId: req.user!.userId,
+        status: 'pending' // Ensure new products start as pending
+      });
+
+      // Create notification for seller confirming submission
+      await storage.createNotification({
+        userId: req.user!.userId,
+        title: "Product Submitted for Review",
+        message: `Your product "${product.title}" has been submitted and is under review. You'll be notified once it's approved.`,
+        type: "product_submitted"
       });
 
       // Create notification for admin about new product
       await storage.createNotification({
         userId: 'admin', // In real app, get admin user ID
-        title: "New Product Submission",
-        message: `New product "${product.title}" submitted for approval`,
-        type: "product_approval"
+        title: "New Product Awaiting Approval",
+        message: `New product "${product.title}" by seller requires approval`,
+        type: "admin_product_review"
       });
 
       res.json(product);
@@ -517,8 +526,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create notification for seller
       await storage.createNotification({
         userId: product.sellerId,
-        title: "Product Approved",
-        message: `Your product "${product.title}" has been approved and is now live`,
+        title: "🎉 Product Approved!",
+        message: `Great news! Your product "${product.title}" has been approved and is now live on the platform. Buyers can now discover and purchase it.`,
         type: "product_approved"
       });
 
@@ -534,13 +543,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
+      const { reason } = req.body;
       const product = await storage.updateProductStatus(req.params.id, 'rejected');
       
-      // Create notification for seller
+      // Create detailed notification for seller
       await storage.createNotification({
         userId: product.sellerId,
-        title: "Product Rejected",
-        message: `Your product "${product.title}" has been rejected. Please review and resubmit if necessary.`,
+        title: "Product Needs Revision",
+        message: `Your product "${product.title}" requires some changes before approval. ${reason ? `Reason: ${reason}` : 'Please review our guidelines and resubmit.'}`,
         type: "product_rejected"
       });
 
@@ -550,23 +560,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/orders", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.put("/api/admin/products/:id/request-edit", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user!.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const product = await storage.updateProductStatus(req.params.id, 'rejected');
+      const { editRequests } = req.body;
+      const product = await storage.getProduct(req.params.id);
       
-      // Create notification for seller
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Create detailed notification for seller with edit requests
       await storage.createNotification({
         userId: product.sellerId,
-        title: "Product Rejected",
-        message: `Your product "${product.title}" has been rejected. Please review and resubmit.`,
-        type: "product_rejected"
+        title: "Edit Required for Your Product",
+        message: `Your product "${product.title}" needs some edits before approval. Please make the following changes: ${editRequests}`,
+        type: "product_edit_request"
       });
 
-      res.json(product);
+      res.json({ message: "Edit request sent to seller" });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
