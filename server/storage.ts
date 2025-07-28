@@ -257,6 +257,14 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(returns).where(eq(returns.orderId, orderId));
   }
 
+  async getAllReturns(): Promise<Return[]> {
+    return await db.select().from(returns).orderBy(desc(returns.createdAt));
+  }
+
+  async getActiveReturns(): Promise<Return[]> {
+    return await db.select().from(returns).where(eq(returns.status, 'requested')).orderBy(desc(returns.createdAt));
+  }
+
   async createReturn(returnRequest: InsertReturn): Promise<Return> {
     const [newReturn] = await db
       .insert(returns)

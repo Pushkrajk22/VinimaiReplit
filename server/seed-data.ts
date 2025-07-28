@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, products } from "@shared/schema";
+import { users, products, orders, returns, offers } from "@shared/schema";
 import bcrypt from "bcrypt";
 
 export async function seedDatabase() {
@@ -43,14 +43,14 @@ export async function seedDatabase() {
     const sellerId = insertedUsers.find(u => u.username === "seller1")?.id;
     if (!sellerId) throw new Error("Seller not found");
 
-    // Create sample products
+    // Create sample products with images
     const sampleProducts = [
       {
         title: "iPhone 14 Pro Max - Excellent Condition",
         description: "Like new iPhone 14 Pro Max, 256GB, Space Black. Used for only 6 months. Comes with original box, charger, and unused screen protector. No scratches or dents.",
         price: "85000",
         category: "electronics" as const,
-        images: [],
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
         sellerId,
         status: "approved" as const,
         isAvailable: true
@@ -60,7 +60,7 @@ export async function seedDatabase() {
         description: "Authentic Nike Air Jordan 1 in excellent condition. Size 9 US. Worn only a few times. Original box included.",
         price: "12000",
         category: "fashion" as const,
-        images: [],
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
         sellerId,
         status: "approved" as const,
         isAvailable: true
@@ -70,7 +70,7 @@ export async function seedDatabase() {
         description: "MacBook Air with M2 chip, 8GB RAM, 256GB SSD. Perfect working condition. Ideal for students and professionals.",
         price: "95000",
         category: "electronics" as const,
-        images: [],
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
         sellerId,
         status: "approved" as const,
         isAvailable: true
@@ -80,7 +80,7 @@ export async function seedDatabase() {
         description: "Solid wood study table in great condition. Perfect for home office or student room. Includes one drawer for storage.",
         price: "8500",
         category: "home_garden" as const,
-        images: [],
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
         sellerId,
         status: "approved" as const,
         isAvailable: true
@@ -90,7 +90,7 @@ export async function seedDatabase() {
         description: "Professional grade cricket bat, hardly used. Perfect weight and balance. Great for serious players.",
         price: "3500",
         category: "sports" as const,
-        images: [],
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
         sellerId,
         status: "approved" as const,
         isAvailable: true
@@ -100,8 +100,100 @@ export async function seedDatabase() {
     const insertedProducts = await db.insert(products).values(sampleProducts).returning();
     console.log(`Created ${insertedProducts.length} sample products`);
 
+    // Get buyer and seller IDs
+    const buyerId = insertedUsers.find(u => u.username === "buyer1")?.id;
+    if (!buyerId) throw new Error("Buyer not found");
+
+    // Create sample orders
+    const sampleOrders = [
+      {
+        id: "order-1",
+        productId: insertedProducts[0].id,
+        buyerId,
+        sellerId,
+        originalPrice: "85000",
+        finalPrice: "82000",
+        platformFee: "2460", // 3% from both buyer and seller
+        status: "delivered" as const,
+        shippingAddress: "123 Main Street, Mumbai, Maharashtra 400001",
+        paymentId: "pay_sample1"
+      },
+      {
+        id: "order-2", 
+        productId: insertedProducts[1].id,
+        buyerId,
+        sellerId,
+        originalPrice: "12000",
+        finalPrice: "11500",
+        platformFee: "690",
+        status: "out_for_delivery" as const,
+        shippingAddress: "456 Park Avenue, Delhi, Delhi 110001",
+        paymentId: "pay_sample2"
+      },
+      {
+        id: "order-3",
+        productId: insertedProducts[2].id,
+        buyerId,
+        sellerId,
+        originalPrice: "95000",
+        finalPrice: "92000",
+        platformFee: "2760",
+        status: "confirmed" as const,
+        shippingAddress: "789 Garden Road, Bangalore, Karnataka 560001",
+        paymentId: "pay_sample3"
+      },
+      {
+        id: "order-4",
+        productId: insertedProducts[3].id,
+        buyerId,
+        sellerId,
+        originalPrice: "8500",
+        finalPrice: "8000",
+        platformFee: "480",
+        status: "delivered" as const,
+        shippingAddress: "321 Lake View, Pune, Maharashtra 411001",
+        paymentId: "pay_sample4"
+      },
+      {
+        id: "order-5",
+        productId: insertedProducts[4].id,
+        buyerId,
+        sellerId,
+        originalPrice: "3500",
+        finalPrice: "3200",
+        platformFee: "192",
+        status: "picked_up" as const,
+        shippingAddress: "654 Hill Station, Chennai, Tamil Nadu 600001",
+        paymentId: "pay_sample5"
+      }
+    ];
+
+    const insertedOrders = await db.insert(orders).values(sampleOrders).returning();
+    console.log(`Created ${insertedOrders.length} sample orders`);
+
+    // Create sample returns
+    const sampleReturns = [
+      {
+        orderId: "order-1",
+        reason: "Product not as described",
+        description: "The phone has some scratches that were not mentioned in the listing",
+        status: "approved" as const,
+        refundAmount: "82000"
+      },
+      {
+        orderId: "order-4",
+        reason: "Damaged during shipping",
+        description: "Table arrived with a broken leg",
+        status: "requested" as const,
+        refundAmount: "8000"
+      }
+    ];
+
+    const insertedReturns = await db.insert(returns).values(sampleReturns).returning();
+    console.log(`Created ${insertedReturns.length} sample returns`);
+
     console.log("Database seeded successfully!");
-    return { users: insertedUsers, products: insertedProducts };
+    return { users: insertedUsers, products: insertedProducts, orders: insertedOrders, returns: insertedReturns };
 
   } catch (error) {
     console.error("Error seeding database:", error);

@@ -32,6 +32,8 @@ export default function AdminPanel() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [editRequests, setEditRequests] = useState("");
+  const [currentView, setCurrentView] = useState<'products' | 'orders' | 'returns' | 'analytics'>('products');
+  const [orderFilter, setOrderFilter] = useState<'all' | 'active' | 'completed'>('all');
 
   // Fetch pending products
   const { data: pendingProducts } = useQuery({
@@ -60,6 +62,21 @@ export default function AdminPanel() {
       });
       if (!response.ok) throw new Error('Failed to fetch orders');
       return await response.json() as Order[];
+    },
+  });
+
+  // Fetch all returns for admin overview
+  const { data: allReturns } = useQuery({
+    queryKey: ['/api/admin/returns'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/returns', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch returns');
+      return await response.json() as Return[];
     },
   });
 
@@ -195,7 +212,16 @@ export default function AdminPanel() {
     activeOrders: allOrders?.filter(o => ['placed', 'confirmed', 'picked_up', 'out_for_delivery'].includes(o.status)).length || 0,
     completedOrders: allOrders?.filter(o => o.status === 'delivered').length || 0,
     totalRevenue: allOrders?.reduce((sum, order) => sum + Number(order.platformFee), 0) || 0,
+    totalReturns: allReturns?.length || 0,
+    activeReturns: allReturns?.filter(r => r.status === 'requested').length || 0,
   };
+
+  // Filter orders based on current filter
+  const filteredOrders = allOrders ? allOrders.filter(order => {
+    if (orderFilter === 'active') return ['placed', 'confirmed', 'picked_up', 'out_for_delivery'].includes(order.status);
+    if (orderFilter === 'completed') return order.status === 'delivered';
+    return true;
+  }) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -208,7 +234,10 @@ export default function AdminPanel() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setCurrentView('products')}
+          >
             <CardContent className="p-6">
               <div className="flex items-center">
                 <AlertTriangle className="h-8 w-8 text-yellow-600" />
@@ -220,7 +249,13 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => {
+              setCurrentView('orders');
+              setOrderFilter('all');
+            }}
+          >
             <CardContent className="p-6">
               <div className="flex items-center">
                 <ShoppingCart className="h-8 w-8 text-blue-600" />
@@ -232,7 +267,13 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => {
+              setCurrentView('orders');
+              setOrderFilter('active');
+            }}
+          >
             <CardContent className="p-6">
               <div className="flex items-center">
                 <Clock className="h-8 w-8 text-orange-600" />
@@ -244,7 +285,13 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => {
+              setCurrentView('orders');
+              setOrderFilter('completed');
+            }}
+          >
             <CardContent className="p-6">
               <div className="flex items-center">
                 <CheckCircle className="h-8 w-8 text-green-600" />
@@ -272,7 +319,7 @@ export default function AdminPanel() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="products" className="space-y-6">
+        <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="products" className="relative px-1">
               <div className="flex items-center justify-center">
@@ -284,8 +331,26 @@ export default function AdminPanel() {
                 )}
               </div>
             </TabsTrigger>
-            <TabsTrigger value="orders" className="text-xs px-1">Orders</TabsTrigger>
-            <TabsTrigger value="returns" className="text-xs px-1">Returns</TabsTrigger>
+            <TabsTrigger value="orders" className="text-xs px-1">
+              <div className="flex items-center justify-center">
+                <span className="text-xs font-medium mr-1">Orders</span>
+                {stats.totalOrders > 0 && (
+                  <div className="bg-blue-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                    {stats.totalOrders}
+                  </div>
+                )}
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="returns" className="text-xs px-1">
+              <div className="flex items-center justify-center">
+                <span className="text-xs font-medium mr-1">Returns</span>
+                {stats.activeReturns > 0 && (
+                  <div className="bg-orange-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                    {stats.activeReturns}
+                  </div>
+                )}
+              </div>
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs px-1">Analytics</TabsTrigger>
           </TabsList>
 
@@ -487,44 +552,127 @@ export default function AdminPanel() {
 
           {/* Order Management Tab */}
           <TabsContent value="orders" className="space-y-6">
-            <h2 className="text-2xl font-bold">Order Management</h2>
-            
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Order Management</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant={orderFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderFilter('all')}
+                >
+                  All ({stats.totalOrders})
+                </Button>
+                <Button 
+                  variant={orderFilter === 'active' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderFilter('active')}
+                >
+                  Active ({stats.activeOrders})
+                </Button>
+                <Button 
+                  variant={orderFilter === 'completed' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOrderFilter('completed')}
+                >
+                  Completed ({stats.completedOrders})
+                </Button>
+              </div>
+            </div>
+
             <div className="grid gap-6">
-              {allOrders?.slice(0, 10).map((order) => (
+              {filteredOrders.slice(0, 10).map((order) => (
                 <Card key={order.id}>
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold">Order #{order.id.slice(0, 8)}</h3>
-                        <p className="text-gray-600">
-                          Amount: {formatPrice(order.finalPrice)} | 
-                          Platform Fee: {formatPrice(order.platformFee)}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Created: {new Date(order.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <Badge className={getStatusColor(order.status)}>
-                          {order.status.replace('_', ' ').toUpperCase()}
-                        </Badge>
-                        <div className="mt-2">
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
+                    <div className="grid lg:grid-cols-3 gap-6">
+                      {/* Order Details */}
+                      <div className="lg:col-span-2 space-y-3">
+                        <div>
+                          <h3 className="text-xl font-semibold">Order #{order.id.slice(-8)}</h3>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge className={getStatusColor(order.status)}>
+                              {order.status.replace('_', ' ')}
+                            </Badge>
+                          </div>
                         </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary">
+                              Final Price: {formatPrice(order.finalPrice)}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              Platform Fee: {formatPrice(order.platformFee)}
+                            </span>
+                          </div>
+                          
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <p>Payment ID: {order.paymentId}</p>
+                            <p>Shipping: {order.shippingAddress}</p>
+                            <p>Created: {new Date(order.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="lg:col-span-1 space-y-3">
+                        <Button variant="outline" className="w-full">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Full Details
+                        </Button>
+                        <Button variant="outline" className="w-full">
+                          Contact Customer
+                        </Button>
+                        {order.status !== 'delivered' && (
+                          <Button variant="outline" className="w-full">
+                            Update Status
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
 
-              {!allOrders || allOrders.length === 0 ? (
+              {/* Include Return Orders Section for Active Orders */}
+              {orderFilter === 'active' && allReturns && allReturns.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-orange-600">Return Requests in Active Orders</h3>
+                  {allReturns.filter(ret => ret.status === 'requested').map((returnRequest) => (
+                    <Card key={returnRequest.id} className="border-orange-200">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold">Return Request - Order #{returnRequest.orderId.slice(-8)}</h4>
+                            <p className="text-sm text-gray-600">Reason: {returnRequest.reason}</p>
+                            <p className="text-sm text-gray-500">Refund Amount: {formatPrice(returnRequest.refundAmount)}</p>
+                          </div>
+                          <div className="space-x-2">
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              Approve Return
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              Reject Return
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {filteredOrders.length === 0 ? (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                    <p className="text-gray-600">Orders will appear here as they are placed</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No {orderFilter === 'all' ? '' : orderFilter} orders
+                    </h3>
+                    <p className="text-gray-600">
+                      {orderFilter === 'active' ? 'Active orders will appear here' : 
+                       orderFilter === 'completed' ? 'Completed orders will appear here' : 
+                       'Orders will appear here as they are placed'}
+                    </p>
                   </CardContent>
                 </Card>
               ) : null}
@@ -535,13 +683,78 @@ export default function AdminPanel() {
           <TabsContent value="returns" className="space-y-6">
             <h2 className="text-2xl font-bold">Return Requests</h2>
             
-            <Card>
-              <CardContent className="p-12 text-center">
-                <RefreshCw className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No return requests</h3>
-                <p className="text-gray-600">Return requests will appear here for review</p>
-              </CardContent>
-            </Card>
+            <div className="grid gap-6">
+              {allReturns?.map((returnRequest) => (
+                <Card key={returnRequest.id}>
+                  <CardContent className="p-6">
+                    <div className="grid lg:grid-cols-3 gap-6">
+                      {/* Return Details */}
+                      <div className="lg:col-span-2 space-y-3">
+                        <div>
+                          <h3 className="text-xl font-semibold">Return Request #{returnRequest.id.slice(-8)}</h3>
+                          <p className="text-gray-600">Order: #{returnRequest.orderId.slice(-8)}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge className={
+                              returnRequest.status === 'requested' ? 'bg-orange-100 text-orange-800' :
+                              returnRequest.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }>
+                              {returnRequest.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div>
+                            <span className="text-sm font-medium text-gray-700">Reason:</span>
+                            <p className="text-gray-600">{returnRequest.reason}</p>
+                          </div>
+                          
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <p><span className="font-medium">Return Type:</span> {returnRequest.returnType}</p>
+                            <p><span className="font-medium">Requested:</span> {new Date(returnRequest.requestedAt).toLocaleDateString()}</p>
+                            {returnRequest.processedAt && (
+                              <p><span className="font-medium">Processed:</span> {new Date(returnRequest.processedAt).toLocaleDateString()}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="lg:col-span-1 space-y-3">
+                        <Button variant="outline" className="w-full">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Order Details
+                        </Button>
+                        {returnRequest.status === 'requested' && (
+                          <>
+                            <Button className="w-full bg-green-600 hover:bg-green-700">
+                              Approve Return
+                            </Button>
+                            <Button variant="destructive" className="w-full">
+                              Reject Return
+                            </Button>
+                          </>
+                        )}
+                        <Button variant="outline" className="w-full">
+                          Contact Customer
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {!allReturns || allReturns.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <RefreshCw className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No return requests</h3>
+                    <p className="text-gray-600">Return requests will appear here for review</p>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
           </TabsContent>
 
           {/* Analytics Tab */}

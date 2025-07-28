@@ -81,6 +81,11 @@ function Router() {
           <AdminPanel />
         </AdminRoute>
       </Route>
+      <Route path="/admin-panel">
+        <AdminRoute>
+          <AdminPanel />
+        </AdminRoute>
+      </Route>
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>

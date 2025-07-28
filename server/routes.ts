@@ -590,6 +590,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/returns", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const returns = await storage.getAllReturns();
+      res.json(returns);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/returns/:id/approve", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const returnRecord = await storage.updateReturnStatus(req.params.id, 'approved');
+      res.json(returnRecord);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/returns/:id/reject", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const returnRecord = await storage.updateReturnStatus(req.params.id, 'rejected');
+      res.json(returnRecord);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Razorpay payment routes
   app.post("/api/payments/create-order", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
