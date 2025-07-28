@@ -258,11 +258,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllReturns(): Promise<Return[]> {
-    return await db.select().from(returns).orderBy(desc(returns.createdAt));
+    return await db.select().from(returns).orderBy(desc(returns.requestedAt));
   }
 
   async getActiveReturns(): Promise<Return[]> {
-    return await db.select().from(returns).where(eq(returns.status, 'requested')).orderBy(desc(returns.createdAt));
+    return await db.select().from(returns).where(eq(returns.status, 'requested')).orderBy(desc(returns.requestedAt));
   }
 
   async createReturn(returnRequest: InsertReturn): Promise<Return> {

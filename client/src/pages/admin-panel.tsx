@@ -372,9 +372,14 @@ export default function AdminPanel() {
                       <div className="lg:col-span-1">
                         {product.images && product.images.length > 0 ? (
                           <img
-                            src={product.images[0]}
+                            src={product.images[0].startsWith('http') ? product.images[0] : `/home/runner/workspace/attached_assets/${product.images[0]}`}
                             alt={product.title}
                             className="w-full h-48 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              // Fallback to placeholder on error
+                              target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+                            }}
                           />
                         ) : (
                           <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -606,8 +611,8 @@ export default function AdminPanel() {
                           </div>
                           
                           <div className="space-y-1 text-sm text-gray-600">
-                            <p>Payment ID: {order.paymentId}</p>
-                            <p>Shipping: {order.shippingAddress}</p>
+                            <p>Order ID: {order.id.slice(-8)}</p>
+                            <p>Shipping: {order.deliveryAddress}</p>
                             <p>Created: {new Date(order.createdAt).toLocaleDateString()}</p>
                           </div>
                         </div>
@@ -644,7 +649,7 @@ export default function AdminPanel() {
                           <div>
                             <h4 className="font-semibold">Return Request - Order #{returnRequest.orderId.slice(-8)}</h4>
                             <p className="text-sm text-gray-600">Reason: {returnRequest.reason}</p>
-                            <p className="text-sm text-gray-500">Refund Amount: {formatPrice(returnRequest.refundAmount)}</p>
+                            <p className="text-sm text-gray-500">Type: {returnRequest.returnType}</p>
                           </div>
                           <div className="space-x-2">
                             <Button size="sm" className="bg-green-600 hover:bg-green-700">
