@@ -31,6 +31,9 @@ export default function Browse() {
   const [offerModalOpen, setOfferModalOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState('all');
   const [sortBy, setSortBy] = React.useState('default');
+  const [browseSearchQuery, setBrowseSearchQuery] = React.useState('');
+  const [browseSuggestions, setBrowseSuggestions] = React.useState<Array<{text: string, category: string, categoryLabel: string}>>([]);
+  const [showBrowseSuggestions, setShowBrowseSuggestions] = React.useState(false);
 
   // Parse search query and category from URL - handle both location and window.location
   const currentUrl = location || window.location.pathname + window.location.search;
@@ -122,6 +125,82 @@ export default function Browse() {
 
   const suggestedCategory = searchQuery ? getCategorySuggestion(searchQuery) : null;
 
+  // Generate suggestions for browse page search
+  const generateBrowseSuggestions = (query: string) => {
+    if (!query || query.length < 2) return [];
+    
+    const suggestions = [];
+    const lowerQuery = query.toLowerCase();
+    
+    const allSuggestions = [
+      // Electronics
+      { text: 'mobile phone', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'laptop', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'smartphone', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'headphones', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'tablet', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'camera', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'smart watch', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'macbook', category: 'electronics', categoryLabel: 'Electronics' },
+      { text: 'iphone', category: 'electronics', categoryLabel: 'Electronics' },
+      
+      // Fashion
+      { text: 'dress', category: 'fashion', categoryLabel: 'Fashion' },
+      { text: 'shirt', category: 'fashion', categoryLabel: 'Fashion' },
+      { text: 'shoes', category: 'fashion', categoryLabel: 'Fashion' },
+      { text: 'jeans', category: 'fashion', categoryLabel: 'Fashion' },
+      { text: 'jacket', category: 'fashion', categoryLabel: 'Fashion' },
+      { text: 'handbag', category: 'fashion', categoryLabel: 'Fashion' },
+      
+      // Home & Garden
+      { text: 'chair', category: 'home_garden', categoryLabel: 'Home & Garden' },
+      { text: 'table', category: 'home_garden', categoryLabel: 'Home & Garden' },
+      { text: 'sofa', category: 'home_garden', categoryLabel: 'Home & Garden' },
+      { text: 'bed', category: 'home_garden', categoryLabel: 'Home & Garden' },
+      { text: 'lamp', category: 'home_garden', categoryLabel: 'Home & Garden' },
+      { text: 'furniture', category: 'home_garden', categoryLabel: 'Home & Garden' },
+      
+      // Sports
+      { text: 'fitness equipment', category: 'sports', categoryLabel: 'Sports' },
+      { text: 'football', category: 'sports', categoryLabel: 'Sports' },
+      { text: 'cricket bat', category: 'sports', categoryLabel: 'Sports' },
+      { text: 'yoga mat', category: 'sports', categoryLabel: 'Sports' },
+      
+      // Books
+      { text: 'novel', category: 'books', categoryLabel: 'Books' },
+      { text: 'textbook', category: 'books', categoryLabel: 'Books' },
+    ];
+    
+    // Filter suggestions based on query
+    for (const suggestion of allSuggestions) {
+      if (suggestion.text.toLowerCase().includes(lowerQuery) && suggestions.length < 6) {
+        suggestions.push(suggestion);
+      }
+    }
+    
+    return suggestions;
+  };
+
+  const handleBrowseSearchChange = (value: string) => {
+    setBrowseSearchQuery(value);
+    const newSuggestions = generateBrowseSuggestions(value);
+    setBrowseSuggestions(newSuggestions);
+    setShowBrowseSuggestions(value.length > 0 && newSuggestions.length > 0);
+  };
+
+  const handleBrowseSuggestionClick = (suggestion: {text: string, category: string, categoryLabel: string}) => {
+    setBrowseSearchQuery('');
+    setShowBrowseSuggestions(false);
+    
+    const params = new URLSearchParams();
+    params.set('category', suggestion.category);
+    params.set('search', suggestion.text);
+    const newUrl = `/browse?${params.toString()}`;
+    
+    console.log('Browse suggestion clicked:', suggestion, 'Navigating to:', newUrl);
+    setLocation(newUrl);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
@@ -151,30 +230,31 @@ export default function Browse() {
               )}
             </div>
             
-            {/* Additional search bar on browse page */}
-            <div className="md:w-96">
+            {/* Additional search bar on browse page with suggestions */}
+            <div className="md:w-96 relative">
               <form onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target as HTMLFormElement);
-                const query = formData.get('search') as string;
-                if (query?.trim()) {
+                if (browseSearchQuery?.trim()) {
                   const params = new URLSearchParams();
-                  params.set('search', query.trim());
+                  params.set('search', browseSearchQuery.trim());
                   
                   // Auto-detect category from search query
-                  const detectedCategory = getCategorySuggestion(query.trim());
+                  const detectedCategory = getCategorySuggestion(browseSearchQuery.trim());
                   if (detectedCategory) {
                     params.set('category', detectedCategory);
                   }
                   
                   const newUrl = `/browse?${params.toString()}`;
                   setLocation(newUrl);
+                  setBrowseSearchQuery('');
+                  setShowBrowseSuggestions(false);
                 }
               }}>
                 <div className="relative">
                   <Input
                     type="text"
-                    name="search"
+                    value={browseSearchQuery}
+                    onChange={(e) => handleBrowseSearchChange(e.target.value)}
                     placeholder="Search products..."
                     className="pr-10"
                   />
@@ -188,6 +268,27 @@ export default function Browse() {
                   </Button>
                 </div>
               </form>
+              
+              {/* Search suggestions dropdown */}
+              {showBrowseSuggestions && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  {browseSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleBrowseSuggestionClick(suggestion)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center justify-between group"
+                    >
+                      <div className="flex items-center">
+                        <Search className="h-4 w-4 text-gray-400 mr-3" />
+                        <span className="text-gray-900">{suggestion.text}</span>
+                      </div>
+                      <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                        {suggestion.categoryLabel}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
