@@ -413,13 +413,23 @@ export default function AdminPanel() {
 
         {/* Main Content Tabs */}
         <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="products" className="relative px-1">
               <div className="flex items-center justify-center">
-                <span className="text-xs font-medium mr-1">Products</span>
+                <span className="text-xs font-medium mr-1">Pending</span>
                 {stats.pendingProducts > 0 && (
                   <div className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
                     {stats.pendingProducts}
+                  </div>
+                )}
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="approved" className="relative px-1">
+              <div className="flex items-center justify-center">
+                <span className="text-xs font-medium mr-1">Approved</span>
+                {approvedProducts && approvedProducts.length > 0 && (
+                  <div className="bg-green-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                    {approvedProducts.length}
                   </div>
                 )}
               </div>
@@ -642,6 +652,208 @@ export default function AdminPanel() {
                     <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No pending approvals</h3>
                     <p className="text-gray-600">All products have been reviewed</p>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
+          </TabsContent>
+
+          {/* Approved Products Tab */}
+          <TabsContent value="approved" className="space-y-6" id="approved-section">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Approved Products Management</h2>
+              <Badge variant="outline" className="bg-green-50 text-green-700">
+                {approvedProducts?.length || 0} approved
+              </Badge>
+            </div>
+
+            <div className="grid gap-6">
+              {approvedProducts?.map((product) => (
+                <Card key={product.id}>
+                  <CardContent className="p-6">
+                    <div className="grid lg:grid-cols-4 gap-6">
+                      {/* Product Image */}
+                      <div className="lg:col-span-1">
+                        {product.images && product.images.length > 0 ? (
+                          <img
+                            src={product.images[0].startsWith('http') ? product.images[0] : `/home/runner/workspace/attached_assets/${product.images[0]}`}
+                            alt={product.title}
+                            className="w-full h-48 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <Package className="h-12 w-12 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="lg:col-span-2 space-y-3">
+                        <div>
+                          <h3 className="text-xl font-semibold">{product.title}</h3>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge className={getCategoryColor(product.category)}>
+                              {product.category.replace('_', ' ')}
+                            </Badge>
+                            <Badge className="bg-green-100 text-green-700">
+                              approved
+                            </Badge>
+                            <Badge variant={product.isAvailable ? "default" : "secondary"}>
+                              {product.isAvailable ? "Available" : "Unavailable"}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <p className="text-gray-600 line-clamp-3">{product.description}</p>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-2xl font-bold text-primary">
+                              {formatPrice(product.price)}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              Approved: {new Date(product.updatedAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <span>Category: {product.category.replace('_', ' ')}</span>
+                            <span>•</span>
+                            <span>Listed: {new Date(product.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          
+                          {product.images && product.images.length > 1 && (
+                            <div className="flex items-center space-x-1 text-sm text-gray-500">
+                              <Eye className="h-4 w-4" />
+                              <span>{product.images.length} images</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="lg:col-span-1 flex flex-col space-y-3">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </Button>
+                        
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full border-orange-300 text-orange-600 hover:bg-orange-50"
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setDelistReason("");
+                              }}
+                            >
+                              <EyeOff className="h-4 w-4 mr-2" />
+                              Delist
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Delist Product</DialogTitle>
+                              <DialogDescription>
+                                This will hide "{product.title}" from buyers. The seller will be notified.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor="delist-reason">Reason for Delisting (Optional)</Label>
+                                <Textarea
+                                  id="delist-reason"
+                                  placeholder="e.g., Policy violation, inappropriate content, seller request..."
+                                  value={delistReason}
+                                  onChange={(e) => setDelistReason(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                onClick={() => {
+                                  delistProductMutation.mutate({ 
+                                    productId: product.id, 
+                                    reason: delistReason 
+                                  });
+                                }}
+                                disabled={delistProductMutation.isPending}
+                                className="bg-orange-600 hover:bg-orange-700"
+                              >
+                                Delist Product
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setDeleteReason("");
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Delete Product</DialogTitle>
+                              <DialogDescription>
+                                This will permanently remove "{product.title}" from the platform. This action cannot be undone.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor="delete-reason">Reason for Deletion (Optional)</Label>
+                                <Textarea
+                                  id="delete-reason"
+                                  placeholder="e.g., Serious policy violation, fake product, legal issues..."
+                                  value={deleteReason}
+                                  onChange={(e) => setDeleteReason(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                onClick={() => {
+                                  deleteProductMutation.mutate({ 
+                                    productId: product.id, 
+                                    reason: deleteReason 
+                                  });
+                                }}
+                                disabled={deleteProductMutation.isPending}
+                                variant="destructive"
+                              >
+                                Delete Product
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {!approvedProducts || approvedProducts.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No approved products</h3>
+                    <p className="text-gray-600">Approved products will appear here for management</p>
                   </CardContent>
                 </Card>
               ) : null}
