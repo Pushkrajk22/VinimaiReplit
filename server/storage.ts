@@ -20,6 +20,7 @@ export interface IStorage {
   getProduct(id: string): Promise<Product | undefined>;
   getProducts(limit?: number, offset?: number, category?: string, search?: string): Promise<Product[]>;
   getProductsBySeller(sellerId: string): Promise<Product[]>;
+  getPendingProducts(): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProductStatus(id: string, status: 'pending' | 'approved' | 'rejected'): Promise<Product>;
   updateProductAvailability(id: string, isAvailable: boolean): Promise<Product>;
@@ -41,6 +42,7 @@ export interface IStorage {
   getOrder(id: string): Promise<Order | undefined>;
   getOrdersByBuyer(buyerId: string): Promise<Order[]>;
   getOrdersBySeller(sellerId: string): Promise<Order[]>;
+  getAllOrders(): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: string, status: 'placed' | 'confirmed' | 'picked_up' | 'out_for_delivery' | 'delivered'): Promise<Order>;
 
@@ -126,6 +128,10 @@ export class DatabaseStorage implements IStorage {
 
   async getProductsBySeller(sellerId: string): Promise<Product[]> {
     return await db.select().from(products).where(eq(products.sellerId, sellerId));
+  }
+
+  async getPendingProducts(): Promise<Product[]> {
+    return await db.select().from(products).where(eq(products.status, 'pending')).orderBy(desc(products.createdAt));
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
@@ -223,6 +229,10 @@ export class DatabaseStorage implements IStorage {
 
   async getOrdersBySeller(sellerId: string): Promise<Order[]> {
     return await db.select().from(orders).where(eq(orders.sellerId, sellerId)).orderBy(desc(orders.createdAt));
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
   }
 
   async createOrder(order: InsertOrder): Promise<Order> {

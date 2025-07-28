@@ -499,8 +499,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
       
-      // In a real app, implement getPendingProducts in storage
-      res.json([]);
+      const pendingProducts = await storage.getPendingProducts();
+      res.json(pendingProducts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -540,6 +540,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createNotification({
         userId: product.sellerId,
         title: "Product Rejected",
+        message: `Your product "${product.title}" has been rejected. Please review and resubmit if necessary.`,
+        type: "product_rejected"
+      });
+
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/orders", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const product = await storage.updateProductStatus(req.params.id, 'rejected');
+      
+      // Create notification for seller
+      await storage.createNotification({
+        userId: product.sellerId,
+        title: "Product Rejected",
         message: `Your product "${product.title}" has been rejected. Please review and resubmit.`,
         type: "product_rejected"
       });
@@ -547,6 +569,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(product);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/orders", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const orders = await storage.getAllOrders();
+      res.json(orders);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 
