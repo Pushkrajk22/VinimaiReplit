@@ -101,14 +101,25 @@ export function Header() {
     setSearchQuery('');
     setShowSuggestions(false);
     
-    // Navigate to browse page with parameters
+    // Navigate to browse page with parameters using replace
     const params = new URLSearchParams();
     params.set('category', suggestion.category);
     params.set('search', suggestion.text);
     const newUrl = `/browse?${params.toString()}`;
     
     console.log('Suggestion clicked:', suggestion, 'Navigating to:', newUrl);
-    setLocation(newUrl);
+    
+    // Use both setLocation and history.pushState to ensure navigation works
+    setLocation(newUrl, { replace: false });
+    
+    // Also use native navigation as fallback
+    setTimeout(() => {
+      if (window.location.pathname + window.location.search !== newUrl) {
+        console.log('Fallback navigation triggered');
+        window.history.pushState({}, '', newUrl);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+    }, 100);
   };
 
   const handleSearch = (e: React.FormEvent) => {

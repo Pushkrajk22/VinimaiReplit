@@ -30,19 +30,39 @@ export default function Browse() {
   const [selectedCategory, setSelectedCategory] = React.useState('all');
   const [sortBy, setSortBy] = React.useState('default');
 
-  // Parse search query and category from URL
-  const searchParams = new URLSearchParams(location.split('?')[1] || '');
+  // Parse search query and category from URL - handle both location and window.location
+  const currentUrl = location || window.location.pathname + window.location.search;
+  const searchParams = new URLSearchParams(currentUrl.split('?')[1] || '');
   const searchQuery = searchParams.get('search') || '';
   const urlCategory = searchParams.get('category') || 'all';
   
   // Initialize selected category from URL and handle URL changes
   React.useEffect(() => {
-    console.log('Browse page - Full location:', location);
-    console.log('Browse page - Search params:', searchParams.toString());
-    console.log('Browse page - URL Category:', urlCategory, 'Search Query:', searchQuery);
-    console.log('Browse page - Setting selectedCategory to:', urlCategory);
-    setSelectedCategory(urlCategory);
-  }, [location]); // Only depend on location to avoid infinite loops
+    const actualUrl = window.location.pathname + window.location.search;
+    const actualParams = new URLSearchParams(window.location.search);
+    const actualCategory = actualParams.get('category') || 'all';
+    
+    console.log('Browse page - Wouter location:', location);
+    console.log('Browse page - Actual URL:', actualUrl);
+    console.log('Browse page - Actual params:', actualParams.toString());
+    console.log('Browse page - Actual category:', actualCategory);
+    console.log('Browse page - Setting selectedCategory to:', actualCategory);
+    
+    setSelectedCategory(actualCategory);
+  }, [location]); // Depend on location changes
+  
+  // Also listen for popstate events to handle manual navigation
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const actualParams = new URLSearchParams(window.location.search);
+      const actualCategory = actualParams.get('category') || 'all';
+      console.log('PopState event - Setting category to:', actualCategory);
+      setSelectedCategory(actualCategory);
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
