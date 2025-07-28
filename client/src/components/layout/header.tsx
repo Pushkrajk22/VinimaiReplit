@@ -22,6 +22,7 @@ export function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +73,12 @@ export function Header() {
           {/* Navigation */}
           <nav className="flex items-center space-x-4">
             {/* Mobile Search */}
-            <Button variant="ghost" size="sm" className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="md:hidden"
+              onClick={() => setIsMobileSearchOpen(true)}
+            >
               <Search className="h-5 w-5" />
             </Button>
 
@@ -150,6 +156,40 @@ export function Header() {
           </nav>
         </div>
       </div>
+
+      {/* Mobile Search Modal */}
+      {isMobileSearchOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden">
+          <div className="bg-white p-4">
+            <form onSubmit={(e) => {
+              handleSearch(e);
+              setIsMobileSearchOpen(false);
+            }}>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1"
+                  autoFocus
+                />
+                <Button type="submit" size="sm">
+                  <Search className="h-4 w-4" />
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setIsMobileSearchOpen(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
