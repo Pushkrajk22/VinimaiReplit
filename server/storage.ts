@@ -21,14 +21,19 @@ export interface IStorage {
   getProducts(limit?: number, offset?: number, category?: string, search?: string): Promise<Product[]>;
   getProductsBySeller(sellerId: string): Promise<Product[]>;
   getPendingProducts(): Promise<Product[]>;
+  getApprovedProducts(): Promise<Product[]>;
+  getDelistedProducts(): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
-  updateProductStatus(id: string, status: 'pending' | 'approved' | 'rejected'): Promise<Product>;
+  updateProductStatus(id: string, status: 'pending' | 'approved' | 'rejected' | 'sold' | 'delisted'): Promise<Product>;
   updateProductAvailability(id: string, isAvailable: boolean): Promise<Product>;
 
   // Product modification requests
   getProductModifications(): Promise<ProductModification[]>;
   createProductModification(modification: any): Promise<ProductModification>;
   updateProductModificationStatus(id: string, status: 'pending' | 'approved' | 'rejected'): Promise<ProductModification>;
+  
+  // Delete product
+  deleteProduct(id: string): Promise<void>;
 
   // Offer management
   getOffer(id: string): Promise<Offer | undefined>;
@@ -48,6 +53,7 @@ export interface IStorage {
 
   // Return management
   getReturnsByOrder(orderId: string): Promise<Return[]>;
+  getAllReturns(): Promise<Return[]>;
   createReturn(returnRequest: InsertReturn): Promise<Return>;
   updateReturnStatus(id: string, status: 'requested' | 'approved' | 'rejected' | 'processed'): Promise<Return>;
 
@@ -102,7 +108,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProducts(limit = 20, offset = 0, category?: string, search?: string): Promise<Product[]> {
-    let conditions = [eq(products.status, 'approved')];
+    let conditions = [or(eq(products.status, 'approved'), eq(products.status, 'sold'))];
 
     if (category) {
       conditions.push(eq(products.category, category as any));
@@ -131,11 +137,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPendingProducts(): Promise<Product[]> {
-    return await db.select().from(products).where(eq(products.status, 'pending')).orderBy(desc(products.createdAt));
+    return await db.select().from(products).where(or(eq(products.status, 'pending'), eq(products.status, 'delisted'))).orderBy(desc(products.createdAt));
   }
 
   async getApprovedProducts(): Promise<Product[]> {
-    return await db.select().from(products).where(eq(products.status, 'approved')).orderBy(desc(products.createdAt));
+    return await db.select().from(products).where(or(eq(products.status, 'approved'), eq(products.status, 'sold'))).orderBy(desc(products.createdAt));
+  }
+
+  async getDelistedProducts(): Promise<Product[]> {
+    return await db.select().from(products).where(eq(products.status, 'delisted')).orderBy(desc(products.createdAt));
   }
 
   async deleteProduct(id: string): Promise<void> {
@@ -145,17 +155,12 @@ export class DatabaseStorage implements IStorage {
   async createProduct(product: InsertProduct): Promise<Product> {
     const [newProduct] = await db
       .insert(products)
-      .values({
-        ...product,
-        id: crypto.randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
+      .values(product)
       .returning();
     return newProduct;
   }
 
-  async updateProductStatus(id: string, status: 'pending' | 'approved' | 'rejected'): Promise<Product> {
+  async updateProductStatus(id: string, status: 'pending' | 'approved' | 'rejected' | 'sold' | 'delisted'): Promise<Product> {
     const [product] = await db
       .update(products)
       .set({ status, updatedAt: new Date() })

@@ -591,7 +591,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/admin/products/:id/sold", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const product = await storage.updateProductStatus(req.params.id, 'sold');
+      
+      // Create notification for seller
+      await storage.createNotification({
+        userId: product.sellerId,
+        title: "Product Marked as Sold",
+        message: `Your product "${product.title}" has been marked as sold. It will now appear as sold to other users.`,
+        type: "product_sold"
+      });
+
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.put("/api/admin/products/:id/delist", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { reason } = req.body;
+      const product = await storage.updateProductStatus(req.params.id, 'delisted');
+      
+      // Create notification for seller
+      await storage.createNotification({
+        userId: product.sellerId,
+        title: "Product Delisted",
+        message: `Your product "${product.title}" has been temporarily removed from public listings. ${reason ? `Reason: ${reason}` : 'You can resubmit it for approval.'}`,
+        type: "product_delisted"
+      });
+
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/products/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user!.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });

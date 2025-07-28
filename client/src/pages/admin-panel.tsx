@@ -226,6 +226,35 @@ export default function AdminPanel() {
     },
   });
 
+  // Mark as sold mutation
+  const markAsSoldMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const response = await fetch(`/api/admin/products/${productId}/sold`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to mark product as sold');
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Product Marked as Sold",
+        description: "The product is now marked as sold and appears unavailable to buyers.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/products/approved'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to mark product as sold",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete product mutation
   const deleteProductMutation = useMutation({
     mutationFn: async ({ productId, reason }: { productId: string; reason?: string }) => {
@@ -243,7 +272,7 @@ export default function AdminPanel() {
     onSuccess: () => {
       toast({
         title: "Product Deleted",
-        description: "The product has been permanently removed.",
+        description: "The product has been permanently removed from the platform.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/products/approved'] });
     },
@@ -744,6 +773,26 @@ export default function AdminPanel() {
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
                         </Button>
+                        
+                        {product.status === 'approved' && (
+                          <Button
+                            onClick={() => markAsSoldMutation.mutate(product.id)}
+                            disabled={markAsSoldMutation.isPending}
+                            className="w-full bg-green-600 hover:bg-green-700"
+                          >
+                            {markAsSoldMutation.isPending ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                Marking...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Mark as Sold
+                              </>
+                            )}
+                          </Button>
+                        )}
                         
                         <Dialog>
                           <DialogTrigger asChild>
