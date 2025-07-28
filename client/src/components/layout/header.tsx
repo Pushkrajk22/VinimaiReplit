@@ -26,7 +26,7 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      setLocation(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      setLocation(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 

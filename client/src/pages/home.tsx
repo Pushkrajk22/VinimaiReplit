@@ -70,7 +70,7 @@ export default function Home() {
                   variant="outline"
                   className="border-white text-white hover:bg-white hover:text-primary"
                 >
-                  <Link href="#products">Browse Products</Link>
+                  <Link href="/browse">Browse Products</Link>
                 </Button>
               </div>
             </div>
