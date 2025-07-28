@@ -1,7 +1,8 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertProductSchema, insertOfferSchema, insertOrderSchema, insertReturnSchema, insertNotificationSchema, insertRatingSchema } from "@shared/schema";
+import { insertUserSchema, insertProductSchema, insertOfferSchema, insertOrderSchema, insertReturnSchema, insertNotificationSchema, insertRatingSchema, users } from "@shared/schema";
+import { db } from "./db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Razorpay from "razorpay";
@@ -272,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const product = await storage.createProduct({
         ...productData,
         sellerId: req.user!.userId,
-        status: 'pending' // Ensure new products start as pending
+        status: 'pending' as const // Ensure new products start as pending
       });
 
       // TODO: Add notifications after fixing foreign key constraints
@@ -743,16 +744,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create admin user
+      // Create admin user with raw database insert to handle isVerified
       const hashedPassword = await bcrypt.hash("admin123", 10);
-      const adminUser = await storage.createUser({
+      const [adminUser] = await db.insert(users).values({
         username: "admin",
         mobile: "9999999999",
         email: "admin@vinimai.com",
         password: hashedPassword,
         role: "admin",
         isVerified: true
-      });
+      }).returning();
 
       res.json({ 
         message: "Admin user created successfully",
