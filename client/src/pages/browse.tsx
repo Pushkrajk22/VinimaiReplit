@@ -64,12 +64,51 @@ export default function Browse() {
     setLocation(newUrl);
   };
 
+  // Smart category suggestions based on search keywords
+  const getCategorySuggestion = (query: string) => {
+    const lowerQuery = query.toLowerCase();
+    const keywords = {
+      electronics: ['mobile', 'phone', 'laptop', 'computer', 'tablet', 'headphones', 'camera', 'tv', 'watch', 'smartphone', 'iphone', 'android', 'macbook', 'dell', 'hp', 'samsung', 'apple', 'sony', 'lg'],
+      fashion: ['shirt', 'dress', 'shoes', 'bag', 'watch', 'clothing', 'jeans', 'jacket', 'sneakers', 'handbag', 'jewelry', 'accessories', 'fashion', 'style'],
+      home_garden: ['furniture', 'sofa', 'chair', 'table', 'bed', 'lamp', 'decoration', 'kitchen', 'garden', 'plant', 'home', 'decor'],
+      sports: ['sports', 'fitness', 'gym', 'exercise', 'football', 'cricket', 'basketball', 'cycling', 'running', 'yoga', 'outdoor']
+    };
+
+    for (const [category, categoryKeywords] of Object.entries(keywords)) {
+      if (categoryKeywords.some(keyword => lowerQuery.includes(keyword))) {
+        return category;
+      }
+    }
+    return null;
+  };
+
+  const suggestedCategory = searchQuery ? getCategorySuggestion(searchQuery) : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Products</h1>
-          <p className="text-gray-600">Discover amazing products from verified sellers</p>
+          {searchQuery ? (
+            <div className="mb-4">
+              <p className="text-gray-600">Search results for: <span className="font-semibold">"{searchQuery}"</span></p>
+              {suggestedCategory && (
+                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-blue-800 text-sm">
+                    💡 <strong>Smart suggestion:</strong> Based on your search, you might find what you're looking for in the{' '}
+                    <button 
+                      onClick={() => handleCategoryChange(suggestedCategory)}
+                      className="font-semibold underline hover:text-blue-900"
+                    >
+                      {categories.find(c => c.id === suggestedCategory)?.label}
+                    </button> category.
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-600">Discover amazing products from verified sellers</p>
+          )}
         </div>
       </div>
 
@@ -168,6 +207,31 @@ export default function Browse() {
           search={searchQuery}
           onMakeOffer={handleMakeOffer}
         />
+
+        {searchQuery && (
+          <div className="mt-8 text-center">
+            <p className="text-gray-600 mb-4">Didn't find what you were looking for?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  const newUrl = new URL(window.location.href);
+                  newUrl.searchParams.delete('search');
+                  window.history.pushState({}, '', newUrl.toString());
+                  window.location.reload();
+                }}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Clear Search
+              </button>
+              <button
+                onClick={() => handleCategoryChange('all')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Browse All Products
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Offer Modal */}

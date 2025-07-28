@@ -27,6 +27,7 @@ export function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setLocation(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(''); // Clear search input after search
     }
   };
 
