@@ -698,6 +698,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create admin user route (for development/setup)
+  app.post("/api/create-admin", async (req, res) => {
+    try {
+      // Check if admin already exists
+      const existingAdmin = await storage.getUserByUsername("admin");
+      if (existingAdmin) {
+        return res.json({ 
+          message: "Admin user already exists",
+          credentials: {
+            username: "admin",
+            mobile: "9999999999",
+            password: "admin123"
+          }
+        });
+      }
+
+      // Create admin user
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      const adminUser = await storage.createUser({
+        username: "admin",
+        mobile: "9999999999",
+        email: "admin@vinimai.com",
+        password: hashedPassword,
+        role: "admin",
+        isVerified: true
+      });
+
+      res.json({ 
+        message: "Admin user created successfully",
+        credentials: {
+          username: "admin",
+          mobile: "9999999999", 
+          password: "admin123"
+        },
+        instructions: "You can now login with these credentials and access /admin"
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error creating admin user: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

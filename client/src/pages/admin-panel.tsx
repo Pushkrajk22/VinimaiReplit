@@ -342,9 +342,9 @@ export default function AdminPanel() {
                           
                           {/* Additional product info */}
                           <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <span>Condition: {product.condition || 'Not specified'}</span>
+                            <span>Category: {product.category.replace('_', ' ')}</span>
                             <span>•</span>
-                            <span>Location: {product.location || 'Not specified'}</span>
+                            <span>Available: {product.isAvailable ? 'Yes' : 'No'}</span>
                           </div>
                           
                           {product.images && product.images.length > 1 && (
