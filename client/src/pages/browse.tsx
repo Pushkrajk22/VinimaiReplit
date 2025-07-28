@@ -37,9 +37,9 @@ export default function Browse() {
   
   // Initialize selected category from URL and handle URL changes
   React.useEffect(() => {
-    console.log('Location changed:', location, 'URL Category:', urlCategory, 'Current selectedCategory:', selectedCategory);
+    console.log('Browse page - Location:', location, 'URL Category:', urlCategory, 'Setting selectedCategory to:', urlCategory);
     setSelectedCategory(urlCategory);
-  }, [location, urlCategory]); // Trigger on both location and urlCategory change
+  }, [location]); // Only depend on location to avoid infinite loops
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
