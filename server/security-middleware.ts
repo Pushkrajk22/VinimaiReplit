@@ -30,8 +30,8 @@ const createRateLimit = (windowMs: number, maxRequests: number, message: string)
 };
 
 export const authRateLimit = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  20, // max 20 requests (increased for development)
+  5 * 60 * 1000, // 5 minutes (reduced window)
+  50, // max 50 requests (increased for demo/testing)
   "Too many authentication attempts, please try again later"
 );
 
