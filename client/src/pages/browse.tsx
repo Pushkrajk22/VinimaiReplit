@@ -35,54 +35,15 @@ export default function Browse() {
   const [browseSuggestions, setBrowseSuggestions] = React.useState<Array<{text: string, category: string, categoryLabel: string}>>([]);
   const [showBrowseSuggestions, setShowBrowseSuggestions] = React.useState(false);
 
-  // Parse search query and category from URL - handle both location and window.location
-  const currentUrl = location || window.location.pathname + window.location.search;
-  const searchParams = new URLSearchParams(currentUrl.split('?')[1] || '');
+  // Parse search query and category from URL
+  const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const searchQuery = searchParams.get('search') || '';
-  const urlCategory = searchParams.get('category') || 'all';
   
-  // Initialize selected category from URL and handle URL changes
+  // Initialize selected category from URL
   React.useEffect(() => {
-    const actualUrl = window.location.pathname + window.location.search;
-    const actualParams = new URLSearchParams(window.location.search);
-    const actualCategory = actualParams.get('category') || 'all';
-    
-    console.log('Browse page - Wouter location:', location);
-    console.log('Browse page - Actual URL:', actualUrl);
-    console.log('Browse page - Actual params:', actualParams.toString());
-    console.log('Browse page - Actual category:', actualCategory);
-    console.log('Browse page - Setting selectedCategory to:', actualCategory);
-    
-    setSelectedCategory(actualCategory);
-  }, [location]); // Depend on location changes
-  
-  // Also listen for popstate events to handle manual navigation
-  React.useEffect(() => {
-    const handlePopState = () => {
-      const actualParams = new URLSearchParams(window.location.search);
-      const actualCategory = actualParams.get('category') || 'all';
-      console.log('PopState event - Setting category to:', actualCategory);
-      setSelectedCategory(actualCategory);
-    };
-    
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  // Additional effect to monitor URL changes and force state updates
-  React.useEffect(() => {
-    const checkUrlChanges = () => {
-      const actualParams = new URLSearchParams(window.location.search);
-      const actualCategory = actualParams.get('category') || 'all';
-      if (actualCategory !== selectedCategory) {
-        console.log('URL changed - updating category from', selectedCategory, 'to', actualCategory);
-        setSelectedCategory(actualCategory);
-      }
-    };
-    
-    const interval = setInterval(checkUrlChanges, 500);
-    return () => clearInterval(interval);
-  }, [selectedCategory]);
+    const urlCategory = searchParams.get('category') || 'all';
+    setSelectedCategory(urlCategory);
+  }, [location]);
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
@@ -410,6 +371,12 @@ export default function Browse() {
         </div>
 
         {/* Product Grid */}
+        <div className="debug-info mb-4 p-3 bg-yellow-50 border rounded">
+          <p className="text-sm text-gray-600">
+            Debug: selectedCategory="{selectedCategory}", searchQuery="{searchQuery}", 
+            category prop={selectedCategory === 'all' ? 'undefined' : selectedCategory}
+          </p>
+        </div>
         <ProductGrid
           category={selectedCategory === 'all' ? undefined : selectedCategory}
           search={searchQuery}
