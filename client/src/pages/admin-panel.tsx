@@ -274,11 +274,15 @@ export default function AdminPanel() {
         {/* Main Content Tabs */}
         <Tabs defaultValue="products" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="products">
-              Product Approval
-              {stats.pendingProducts > 0 && (
-                <Badge className="ml-2 bg-red-500">{stats.pendingProducts}</Badge>
-              )}
+            <TabsTrigger value="products" className="relative">
+              <div className="flex items-center gap-2">
+                <span>Product Approval</span>
+                {stats.pendingProducts > 0 && (
+                  <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[1.5rem] h-5">
+                    {stats.pendingProducts}
+                  </Badge>
+                )}
+              </div>
             </TabsTrigger>
             <TabsTrigger value="orders">Order Management</TabsTrigger>
             <TabsTrigger value="returns">Returns</TabsTrigger>
