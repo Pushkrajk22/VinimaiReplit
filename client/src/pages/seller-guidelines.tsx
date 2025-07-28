@@ -30,8 +30,8 @@ export default function SellerGuidelines() {
               <h2 className="text-xl font-semibold text-green-900 m-0">Welcome to Vinimai Sellers</h2>
             </div>
             <p className="text-green-800 m-0">
-              Join thousands of successful sellers who are earning by selling their products on India's 
-              most trusted peer-to-peer marketplace. Follow these guidelines to maximize your success.
+              Join our community of individual sellers who are earning by selling their personal items on India's 
+              most trusted peer-to-peer marketplace. Follow these guidelines for a smooth selling experience.
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default function SellerGuidelines() {
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
                     <li>Research similar products to set competitive prices</li>
                     <li>Consider the condition and age of your item</li>
-                    <li>Factor in our 3% commission fee</li>
+                    <li>Factor in our 3% platform fee</li>
                     <li>Leave room for negotiation</li>
                     <li>Update prices if items aren't getting offers</li>
                   </ul>
@@ -113,17 +113,17 @@ export default function SellerGuidelines() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-green-600" />
-                  Commission & Payments
+                  Platform Fee & Payments
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">How Our Commission Works</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">How Our Platform Fee Works</h4>
                   <ul className="list-disc list-inside space-y-1 text-blue-800 text-sm">
-                    <li>We charge 3% commission from both buyer and seller</li>
-                    <li>Seller receives: Sale Price - 3% commission</li>
+                    <li>We charge 3% platform fee from both buyer and seller</li>
+                    <li>Seller receives: Sale Price - 3% platform fee</li>
                     <li>Example: ₹1000 sale = ₹970 to seller, ₹30 platform fee</li>
-                    <li>Commission is automatically deducted during payment processing</li>
+                    <li>Platform fee is automatically deducted during payment processing</li>
                   </ul>
                 </div>
 
@@ -152,22 +152,13 @@ export default function SellerGuidelines() {
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
                     <li>Respond to offers within 24 hours</li>
                     <li>Package items securely to prevent damage</li>
-                    <li>Ship within 1-2 business days of payment</li>
+                    <li>Ship within 1-10 business days of payment</li>
                     <li>Provide tracking information promptly</li>
                     <li>Communicate any delays immediately</li>
                   </ul>
                 </div>
 
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-900">Customer Communication</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
-                    <li>Be polite and professional in all messages</li>
-                    <li>Answer questions thoroughly and promptly</li>
-                    <li>Provide additional photos if requested</li>
-                    <li>Keep communication within the platform</li>
-                    <li>Follow up after delivery to ensure satisfaction</li>
-                  </ul>
-                </div>
+
               </CardContent>
             </Card>
 
@@ -227,11 +218,9 @@ export default function SellerGuidelines() {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Restricted Items</h4>
                     <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm">
-                      <li>Electronics without original warranty</li>
                       <li>Prescription medications</li>
                       <li>Recalled or unsafe products</li>
                       <li>Items requiring special licenses</li>
-                      <li>Products with expired warranties</li>
                       <li>Damaged or broken items (unless clearly stated)</li>
                     </ul>
                   </div>
@@ -239,33 +228,7 @@ export default function SellerGuidelines() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Success Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">Building Your Reputation</h4>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700">
-                      <li>Provide excellent customer service</li>
-                      <li>Ship quickly and package carefully</li>
-                      <li>Encourage buyers to leave reviews</li>
-                      <li>Maintain high seller ratings</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">Increasing Sales</h4>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700">
-                      <li>List items regularly to stay visible</li>
-                      <li>Use relevant keywords in titles</li>
-                      <li>Offer bundle deals for multiple items</li>
-                      <li>Be flexible with negotiations</li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
 
           <div className="mt-8 text-center">
