@@ -31,11 +31,9 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">For Buyers</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/" className="hover:text-white">Browse Products</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-white">Make Offers</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white">Track Orders</Link></li>
-              <li><Link href="/returns" className="hover:text-white">Return Policy</Link></li>
-              <li><Link href="/safety" className="hover:text-white">Buyer Protection</Link></li>
+              <li><Link href="/browse" className="hover:text-white">Browse Products</Link></li>
+              <li><Link href="/track-orders" className="hover:text-white">Track Orders</Link></li>
+              <li><Link href="/return-policy" className="hover:text-white">Return Policy</Link></li>
             </ul>
           </div>
 
@@ -43,11 +41,8 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">For Sellers</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/products/new" className="hover:text-white">List Products</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white">Manage Offers</Link></li>
+              <li><Link href="/list-product" className="hover:text-white">List Product</Link></li>
               <li><Link href="/seller-guidelines" className="hover:text-white">Seller Guidelines</Link></li>
-              <li><Link href="/commission" className="hover:text-white">Commission Structure</Link></li>
-              <li><Link href="/support" className="hover:text-white">Seller Support</Link></li>
             </ul>
           </div>
 
@@ -55,11 +50,8 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
               <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
-              <li><Link href="/safety" className="hover:text-white">Safety Tips</Link></li>
-              <li><Link href="/disputes" className="hover:text-white">Dispute Resolution</Link></li>
-              <li><Link href="/community" className="hover:text-white">Community Guidelines</Link></li>
+              <li><Link href="/community-guidelines" className="hover:text-white">Community Guidelines</Link></li>
             </ul>
           </div>
         </div>

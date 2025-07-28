@@ -31,9 +31,7 @@ export function Header() {
   };
 
   const navigationItems = [
-    { label: "Browse Products", href: "/" },
-    { label: "Categories", href: "/categories" },
-    { label: "How it Works", href: "/how-it-works" },
+    { label: "Browse Products", href: "/browse" },
   ];
 
   return (

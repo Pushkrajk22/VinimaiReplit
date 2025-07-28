@@ -74,21 +74,13 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-            <div className="relative">
-              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white bg-opacity-20 rounded-xl p-4 h-32 flex items-center justify-center">
-                    <Smartphone className="h-12 w-12 text-white" />
-                  </div>
-                  <div className="bg-white bg-opacity-20 rounded-xl p-4 h-32 flex items-center justify-center">
-                    <Handshake className="h-12 w-12 text-white" />
-                  </div>
-                  <div className="bg-white bg-opacity-20 rounded-xl p-4 h-32 flex items-center justify-center">
-                    <Shield className="h-12 w-12 text-white" />
-                  </div>
-                  <div className="bg-white bg-opacity-20 rounded-xl p-4 h-32 flex items-center justify-center">
-                    <Truck className="h-12 w-12 text-white" />
-                  </div>
+            <div className="relative hidden lg:block">
+              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-6">
+                <div className="flex items-center justify-center space-x-8">
+                  <Smartphone className="h-16 w-16 text-white" />
+                  <Handshake className="h-16 w-16 text-white" />
+                  <Shield className="h-16 w-16 text-white" />
+                  <Truck className="h-16 w-16 text-white" />
                 </div>
               </div>
             </div>
@@ -103,7 +95,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Vinimai?</h2>
             <p className="text-xl text-gray-600">Built for trust, designed for individuals</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-4 gap-8">
             <div className="text-center p-6">
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-green-600" />
@@ -124,6 +116,13 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3">Easy Returns</h3>
               <p className="text-gray-600">Fashion items: return on spot. Electronics: 2-day return window for peace of mind.</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-purple-600">1K+</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Satisfied Users</h3>
+              <p className="text-gray-600">1000+ satisfied users and counting. Join our growing community today.</p>
             </div>
           </div>
         </div>

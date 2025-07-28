@@ -14,6 +14,13 @@ import ProductDetails from "@/pages/product-details";
 import AdminPanel from "@/pages/admin-panel";
 import Checkout from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
+import Browse from "@/pages/browse";
+import TrackOrders from "@/pages/track-orders";
+import ReturnPolicy from "@/pages/return-policy";
+import ListProduct from "@/pages/list-product";
+import Contact from "@/pages/contact";
+import CommunityGuidelines from "@/pages/community-guidelines";
+import SellerGuidelines from "@/pages/seller-guidelines";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -43,8 +50,15 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/browse" component={Browse} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/track-orders" component={TrackOrders} />
+      <Route path="/return-policy" component={ReturnPolicy} />
+      <Route path="/list-product" component={ListProduct} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/community-guidelines" component={CommunityGuidelines} />
+      <Route path="/seller-guidelines" component={SellerGuidelines} />
       <Route path="/products/:id">
         {(params) => <ProductDetails productId={params.id} />}
       </Route>
