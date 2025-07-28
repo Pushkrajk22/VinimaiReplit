@@ -100,7 +100,8 @@ export function Header() {
   const handleSuggestionClick = (suggestion: {text: string, category: string, categoryLabel: string}) => {
     const newUrl = `/browse?category=${suggestion.category}&search=${encodeURIComponent(suggestion.text)}`;
     console.log('Suggestion clicked:', suggestion, 'Navigating to:', newUrl);
-    setLocation(newUrl);
+    // Force navigation by using window.location for debugging
+    window.location.href = newUrl;
     setSearchQuery('');
     setShowSuggestions(false);
   };
