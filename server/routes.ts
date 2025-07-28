@@ -506,6 +506,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/products/approved", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const approvedProducts = await storage.getApprovedProducts();
+      res.json(approvedProducts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.put("/api/admin/products/:id/approve", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user!.role !== 'admin') {
@@ -573,6 +586,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       res.json({ message: "Edit request sent to seller" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/products/:id/delist", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { reason } = req.body;
+      const product = await storage.getProduct(req.params.id);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Update product to delisted status
+      await storage.updateProductAvailability(req.params.id, false);
+      
+      // Create notification for seller
+      await storage.createNotification({
+        userId: product.sellerId,
+        title: "Product Delisted",
+        message: `Your product "${product.title}" has been delisted from the platform. ${reason ? `Reason: ${reason}` : 'If you have questions, please contact support.'}`,
+        type: "product_delisted"
+      });
+
+      const updatedProduct = await storage.getProduct(req.params.id);
+      res.json(updatedProduct);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/products/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { reason } = req.body;
+      const product = await storage.getProduct(req.params.id);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Create notification for seller before deletion
+      await storage.createNotification({
+        userId: product.sellerId,
+        title: "Product Removed",
+        message: `Your product "${product.title}" has been permanently removed from the platform. ${reason ? `Reason: ${reason}` : 'If you believe this was an error, please contact support.'}`,
+        type: "product_deleted"
+      });
+
+      // Delete the product
+      await storage.deleteProduct(req.params.id);
+      
+      res.json({ message: "Product deleted successfully" });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

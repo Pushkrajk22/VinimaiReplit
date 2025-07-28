@@ -134,10 +134,23 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(products).where(eq(products.status, 'pending')).orderBy(desc(products.createdAt));
   }
 
+  async getApprovedProducts(): Promise<Product[]> {
+    return await db.select().from(products).where(eq(products.status, 'approved')).orderBy(desc(products.createdAt));
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await db.delete(products).where(eq(products.id, id));
+  }
+
   async createProduct(product: InsertProduct): Promise<Product> {
     const [newProduct] = await db
       .insert(products)
-      .values(product)
+      .values({
+        ...product,
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
       .returning();
     return newProduct;
   }

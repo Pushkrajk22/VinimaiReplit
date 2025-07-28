@@ -19,7 +19,9 @@ import {
   AlertTriangle,
   Edit3,
   Eye,
-  IndianRupee
+  IndianRupee,
+  Trash2,
+  EyeOff
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +34,8 @@ export default function AdminPanel() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [editRequests, setEditRequests] = useState("");
+  const [delistReason, setDelistReason] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
   const [currentView, setCurrentView] = useState<'products' | 'orders' | 'returns' | 'analytics'>('products');
   const [orderFilter, setOrderFilter] = useState<'all' | 'active' | 'completed'>('all');
 
@@ -54,6 +58,21 @@ export default function AdminPanel() {
         },
       });
       if (!response.ok) throw new Error('Failed to fetch pending products');
+      return await response.json() as Product[];
+    },
+  });
+
+  // Fetch approved products
+  const { data: approvedProducts } = useQuery({
+    queryKey: ['/api/admin/products/approved'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/products/approved', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch approved products');
       return await response.json() as Product[];
     },
   });
@@ -172,6 +191,66 @@ export default function AdminPanel() {
       toast({
         title: "Error",
         description: error.message || "Failed to send edit request",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delist product mutation
+  const delistProductMutation = useMutation({
+    mutationFn: async ({ productId, reason }: { productId: string; reason?: string }) => {
+      const response = await fetch(`/api/admin/products/${productId}/delist`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) throw new Error('Failed to delist product');
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Product Delisted",
+        description: "The product has been delisted and the seller has been notified.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/products/approved'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delist product",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete product mutation
+  const deleteProductMutation = useMutation({
+    mutationFn: async ({ productId, reason }: { productId: string; reason?: string }) => {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) throw new Error('Failed to delete product');
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Product Deleted",
+        description: "The product has been permanently removed.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/products/approved'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete product",
         variant: "destructive",
       });
     },
