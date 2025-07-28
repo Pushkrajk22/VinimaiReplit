@@ -213,9 +213,10 @@ export default function AdminPanel() {
     onSuccess: () => {
       toast({
         title: "Product Delisted",
-        description: "The product has been delisted and the seller has been notified.",
+        description: "The product has been moved back to pending approval.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/products/approved'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/products/pending'] });
     },
     onError: (error: any) => {
       toast({
@@ -812,7 +813,7 @@ export default function AdminPanel() {
                             <DialogHeader>
                               <DialogTitle>Delist Product</DialogTitle>
                               <DialogDescription>
-                                This will hide "{product.title}" from buyers. The seller will be notified.
+                                This will move "{product.title}" back to pending approval and hide it from buyers. The seller will be notified.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">

@@ -620,13 +620,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { reason } = req.body;
-      const product = await storage.updateProductStatus(req.params.id, 'delisted');
+      const product = await storage.updateProductStatus(req.params.id, 'pending');
       
       // Create notification for seller
       await storage.createNotification({
         userId: product.sellerId,
-        title: "Product Delisted",
-        message: `Your product "${product.title}" has been temporarily removed from public listings. ${reason ? `Reason: ${reason}` : 'You can resubmit it for approval.'}`,
+        title: "Product Delisted - Pending Review",
+        message: `Your product "${product.title}" has been moved back to pending approval. ${reason ? `Reason: ${reason}` : 'Please review and resubmit if needed.'}`,
         type: "product_delisted"
       });
 
