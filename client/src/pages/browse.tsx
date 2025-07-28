@@ -371,12 +371,6 @@ export default function Browse() {
         </div>
 
         {/* Product Grid */}
-        <div className="debug-info mb-4 p-3 bg-yellow-50 border rounded">
-          <p className="text-sm text-gray-600">
-            Debug: selectedCategory="{selectedCategory}", searchQuery="{searchQuery}", 
-            category prop={selectedCategory === 'all' ? 'undefined' : selectedCategory}
-          </p>
-        </div>
         <ProductGrid
           category={selectedCategory === 'all' ? undefined : selectedCategory}
           search={searchQuery}

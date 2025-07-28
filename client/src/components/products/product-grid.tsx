@@ -25,9 +25,12 @@ export function ProductGrid({ category, search, onMakeOffer }: ProductGridProps)
       params.append('offset', (page * limit).toString());
 
       const response = await fetch(`/api/products?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch products');
+      if (!response.ok) {
+        console.error('Product fetch failed:', response.status, response.statusText);
+        throw new Error('Failed to fetch products');
+      }
       const data = await response.json() as Product[];
-      console.log('ProductGrid fetched products:', data?.length || 0, 'products');
+      console.log('ProductGrid fetched products:', data?.length || 0, 'products', data);
       return data;
     },
   });
