@@ -22,6 +22,7 @@ import Contact from "@/pages/contact";
 import CommunityGuidelines from "@/pages/community-guidelines";
 import SellerGuidelines from "@/pages/seller-guidelines";
 import PrivacyPolicy from "@/pages/privacy-policy";
+import CookiePolicy from "@/pages/cookie-policy";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/community-guidelines" component={CommunityGuidelines} />
       <Route path="/seller-guidelines" component={SellerGuidelines} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/cookie-policy" component={CookiePolicy} />
       <Route path="/products/:id">
         {(params) => <ProductDetails productId={params.id} />}
       </Route>
