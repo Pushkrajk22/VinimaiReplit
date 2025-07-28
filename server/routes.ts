@@ -8,6 +8,7 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import { seedDatabase } from "./seed-data";
 import { authRateLimit, generalRateLimit, securityHeaders, requestLogger, validatePasswordStrength } from "./security-middleware";
+import twilio from "twilio";
 
 // Extend Express Request type to include user
 interface AuthenticatedRequest extends Request {
@@ -29,6 +30,40 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
+
+// Initialize Twilio
+let twilioClient: any = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
+
+// Store OTPs temporarily (in production, use Redis or database)
+const otpStore = new Map<string, { otp: string; expires: number }>();
+
+// Generate 6-digit OTP
+const generateOTP = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Send SMS via Twilio
+const sendSMS = async (mobile: string, message: string): Promise<boolean> => {
+  if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+    console.log(`[DEV MODE] SMS to ${mobile}: ${message}`);
+    return false; // Fallback to test mode
+  }
+
+  try {
+    await twilioClient.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: mobile.startsWith('+') ? mobile : `+91${mobile}` // Add country code for India
+    });
+    return true;
+  } catch (error) {
+    console.error('Twilio SMS Error:', error);
+    return false;
+  }
+};
 
 // Middleware to verify JWT token
 const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -126,11 +161,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/send-otp", async (req, res) => {
     try {
       const { mobile } = req.body;
-      // In a real app, send OTP via SMS service like Twilio
-      // For now, we'll just return success
-      res.json({ message: "OTP sent successfully", otp: "123456" }); // Remove OTP in production
+      
+      if (!mobile || mobile.length < 10) {
+        return res.status(400).json({ message: "Valid mobile number is required" });
+      }
+      
+      const otp = generateOTP();
+      const message = `Your Vinimai verification code is: ${otp}. This code will expire in 10 minutes. Do not share this code with anyone.`;
+      
+      // Store OTP with 10-minute expiry
+      otpStore.set(mobile, {
+        otp,
+        expires: Date.now() + (10 * 60 * 1000) // 10 minutes
+      });
+      
+      // Try to send real SMS
+      const smsSent = await sendSMS(mobile, message);
+      
+      if (smsSent) {
+        res.json({ message: "OTP sent successfully to your mobile number" });
+      } else {
+        // Fallback to test mode if Twilio is not configured
+        console.log(`[TEST MODE] OTP for ${mobile}: ${otp}`);
+        res.json({ 
+          message: "OTP sent successfully", 
+          testMode: true,
+          otp: process.env.NODE_ENV === 'development' ? otp : undefined 
+        });
+      }
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      console.error('Send OTP Error:', error);
+      res.status(500).json({ message: "Failed to send OTP. Please try again." });
     }
   });
 
@@ -138,11 +199,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { mobile, otp } = req.body;
       
-      // In a real app, verify OTP with SMS service
-      if (otp !== "123456") {
-        return res.status(400).json({ message: "Invalid OTP" });
+      if (!mobile || !otp) {
+        return res.status(400).json({ message: "Mobile number and OTP are required" });
       }
-
+      
+      const storedOtpData = otpStore.get(mobile);
+      
+      if (!storedOtpData) {
+        return res.status(400).json({ message: "OTP expired or not found. Please request a new OTP." });
+      }
+      
+      if (Date.now() > storedOtpData.expires) {
+        otpStore.delete(mobile);
+        return res.status(400).json({ message: "OTP has expired. Please request a new OTP." });
+      }
+      
+      if (storedOtpData.otp !== otp) {
+        return res.status(400).json({ message: "Invalid OTP. Please check and try again." });
+      }
+      
+      // OTP is valid, remove it from store
+      otpStore.delete(mobile);
+      
+      // Update user verification status if user exists
       const user = await storage.getUserByMobile(mobile);
       if (user) {
         await storage.updateUserVerification(user.id, true);
@@ -150,7 +229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ message: "OTP verified successfully" });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      console.error('Verify OTP Error:', error);
+      res.status(500).json({ message: "Failed to verify OTP. Please try again." });
     }
   });
 
