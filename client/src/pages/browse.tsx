@@ -124,27 +124,70 @@ export default function Browse() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Products</h1>
-          {searchQuery ? (
-            <div className="mb-4">
-              <p className="text-gray-600">Search results for: <span className="font-semibold">"{searchQuery}"</span></p>
-              {suggestedCategory && (
-                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-blue-800 text-sm">
-                    💡 <strong>Smart suggestion:</strong> Based on your search, you might find what you're looking for in the{' '}
-                    <button 
-                      onClick={() => handleCategoryChange(suggestedCategory)}
-                      className="font-semibold underline hover:text-blue-900"
-                    >
-                      {categories.find(c => c.id === suggestedCategory)?.label}
-                    </button> category.
-                  </p>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-8">
+            <div className="mb-4 md:mb-0 flex-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Products</h1>
+              {searchQuery ? (
+                <div className="mb-4">
+                  <p className="text-gray-600">Search results for: <span className="font-semibold">"{searchQuery}"</span></p>
+                  {suggestedCategory && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-blue-800 text-sm">
+                        💡 <strong>Smart suggestion:</strong> Based on your search, you might find what you're looking for in the{' '}
+                        <button 
+                          onClick={() => handleCategoryChange(suggestedCategory)}
+                          className="font-semibold underline hover:text-blue-900"
+                        >
+                          {categories.find(c => c.id === suggestedCategory)?.label}
+                        </button> category.
+                      </p>
+                    </div>
+                  )}
                 </div>
+              ) : (
+                <p className="text-gray-600">Discover amazing products from verified sellers</p>
               )}
             </div>
-          ) : (
-            <p className="text-gray-600">Discover amazing products from verified sellers</p>
-          )}
+            
+            {/* Additional search bar on browse page */}
+            <div className="md:w-96">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                const query = formData.get('search') as string;
+                if (query?.trim()) {
+                  const params = new URLSearchParams();
+                  params.set('search', query.trim());
+                  
+                  // Auto-detect category from search query
+                  const detectedCategory = getCategorySuggestion(query.trim());
+                  if (detectedCategory) {
+                    params.set('category', detectedCategory);
+                  }
+                  
+                  const newUrl = `/browse?${params.toString()}`;
+                  setLocation(newUrl);
+                }
+              }}>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    name="search"
+                    placeholder="Search products..."
+                    className="pr-10"
+                  />
+                  <Button 
+                    type="submit" 
+                    variant="ghost" 
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                  >
+                    <Search className="h-4 w-4 text-gray-400" />
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
 
