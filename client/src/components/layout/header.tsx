@@ -95,7 +95,6 @@ export function Header() {
     const newSuggestions = getSuggestions(value);
     setSuggestions(newSuggestions);
     setShowSuggestions(value.length > 0 && newSuggestions.length > 0);
-    console.log('Search input:', value, 'Suggestions:', newSuggestions, 'Show:', value.length > 0 && newSuggestions.length > 0);
   };
 
   const handleSuggestionClick = (suggestion: {text: string, category: string, categoryLabel: string}) => {
@@ -265,7 +264,7 @@ export function Header() {
       {/* Mobile Search Modal */}
       {isMobileSearchOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden">
-          <div className="bg-white p-4">
+          <div className="bg-white p-4 relative">
             <form onSubmit={(e) => {
               handleSearch(e);
               setIsMobileSearchOpen(false);
@@ -286,12 +285,40 @@ export function Header() {
                   type="button" 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => setIsMobileSearchOpen(false)}
+                  onClick={() => {
+                    setIsMobileSearchOpen(false);
+                    setShowSuggestions(false);
+                    setSearchQuery('');
+                  }}
                 >
                   Cancel
                 </Button>
               </div>
             </form>
+
+            {/* Mobile Search Suggestions */}
+            {suggestions.length > 0 && searchQuery.length > 0 && (
+              <div className="mt-4 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      handleSuggestionClick(suggestion);
+                      setIsMobileSearchOpen(false);
+                    }}
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Search className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-900">{suggestion.text}</span>
+                    </div>
+                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {suggestion.categoryLabel}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
