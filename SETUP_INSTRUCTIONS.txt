@@ -1,0 +1,62 @@
+VINIMAI EXCHANGE PLATFORM - SETUP INSTRUCTIONS
+
+STEP 1: Create Project Folder
+mkdir vinimai-platform
+cd vinimai-platform
+
+STEP 2: Create package.json
+Copy the content from PACKAGE_JSON.txt and save it as package.json
+
+STEP 3: Install Dependencies
+npm install
+
+STEP 4: Create Project Structure
+mkdir -p client/src/{components,pages,hooks,lib}
+mkdir -p client/src/components/{ui,auth,products,offers,orders,payments,layout}
+mkdir server
+mkdir shared
+
+STEP 5: Environment Variables
+Create .env file with:
+DATABASE_URL=your_postgresql_database_url
+JWT_SECRET=your_secret_key_64_characters_long
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_secret_key
+
+STEP 6: Configuration Files
+Create these files:
+- tsconfig.json (TypeScript configuration)
+- tailwind.config.ts (Styling configuration)
+- vite.config.ts (Build configuration)
+- drizzle.config.ts (Database configuration)
+
+STEP 7: Main Files to Create
+- client/src/App.tsx (Main React app)
+- client/src/main.tsx (Entry point)
+- client/src/index.css (Global styles)
+- server/index.ts (Server entry point)
+- server/routes.ts (API endpoints)
+- server/storage.ts (Database operations)
+- shared/schema.ts (Database models)
+
+STEP 8: Run Development Server
+npm run dev
+
+FEATURES INCLUDED:
+- User authentication (buyers, sellers, admins)
+- Product listing with image uploads
+- Offer-based negotiation system
+- Order tracking and management
+- Razorpay payment integration
+- Admin panel with approval workflow
+- Mobile-responsive design
+- Revenue calculation (3% from both sides)
+
+TECHNOLOGY STACK:
+- Frontend: React + TypeScript + Tailwind CSS
+- Backend: Node.js + Express + TypeScript
+- Database: PostgreSQL + Drizzle ORM
+- Payment: Razorpay integration
+- Build: Vite + esbuild
+
+Your IT team can use these instructions to recreate the complete platform.
