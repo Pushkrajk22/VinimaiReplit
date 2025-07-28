@@ -61,7 +61,7 @@ export function Footer() {
             &copy; 2024 Vinimai. All rights reserved.
           </p>
           <div className="flex space-x-6 text-sm text-gray-400 mt-4 sm:mt-0">
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+            <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-white">Terms of Service</Link>
             <Link href="/cookies" className="hover:text-white">Cookie Policy</Link>
           </div>
