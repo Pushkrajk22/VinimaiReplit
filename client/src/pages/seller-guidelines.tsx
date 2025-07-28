@@ -171,24 +171,24 @@ export default function SellerGuidelines() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-900">Avoiding Scams</h4>
+                  <h4 className="font-semibold text-gray-900">Privacy & Fraud Protection</h4>
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
-                    <li>Never complete transactions outside the platform</li>
-                    <li>Don't share personal contact information</li>
-                    <li>Be wary of buyers asking for immediate shipping</li>
-                    <li>Report suspicious buyer behavior</li>
-                    <li>Use our secure payment system only</li>
+                    <li>Buyers and sellers cannot communicate with each other directly</li>
+                    <li>All transactions are handled through our secure platform</li>
+                    <li>Personal contact information is kept private for your protection</li>
+                    <li>Report any suspicious activity through our support system</li>
+                    <li>Use our secure payment system only - never accept external payments</li>
                   </ul>
                 </div>
 
                 <div className="space-y-3">
                   <h4 className="font-semibold text-gray-900">Handling Disputes</h4>
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
-                    <li>Document all communications and transactions</li>
                     <li>Keep shipping receipts and tracking information</li>
                     <li>Contact support immediately if issues arise</li>
                     <li>Provide evidence to support your case</li>
                     <li>Follow our dispute resolution process</li>
+                    <li>All disputes are handled by our support team</li>
                   </ul>
                 </div>
               </CardContent>
