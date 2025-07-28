@@ -275,21 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'pending' // Ensure new products start as pending
       });
 
-      // Create notification for seller confirming submission
-      await storage.createNotification({
-        userId: req.user!.userId,
-        title: "Product Submitted for Review",
-        message: `Your product "${product.title}" has been submitted and is under review. You'll be notified once it's approved.`,
-        type: "product_submitted"
-      });
-
-      // Create notification for admin about new product
-      await storage.createNotification({
-        userId: 'admin', // In real app, get admin user ID
-        title: "New Product Awaiting Approval",
-        message: `New product "${product.title}" by seller requires approval`,
-        type: "admin_product_review"
-      });
+      // TODO: Add notifications after fixing foreign key constraints
 
       res.json(product);
     } catch (error: any) {

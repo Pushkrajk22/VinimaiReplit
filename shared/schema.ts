@@ -218,6 +218,7 @@ export const insertProductSchema = createInsertSchema(products).omit({
   createdAt: true,
   updatedAt: true,
   status: true,
+  sellerId: true,
 });
 
 export const insertOfferSchema = createInsertSchema(offers).omit({
