@@ -1,11 +1,13 @@
 import React from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ProductGrid } from "@/components/products/product-grid";
 import { OfferModal } from "@/components/offers/offer-modal";
 import { Product } from "@shared/schema";
 import { useAuth } from "@/lib/auth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search } from "lucide-react";
 
 const categories = [
   { id: 'all', label: 'All' },
