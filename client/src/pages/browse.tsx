@@ -35,10 +35,10 @@ export default function Browse() {
   const searchQuery = searchParams.get('search') || '';
   const urlCategory = searchParams.get('category') || 'all';
   
-  // Initialize selected category from URL
+  // Initialize selected category from URL and handle URL changes
   React.useEffect(() => {
     setSelectedCategory(urlCategory);
-  }, [urlCategory]);
+  }, [location]); // Trigger on location change, not just urlCategory
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
@@ -51,12 +51,17 @@ export default function Browse() {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    const params = new URLSearchParams();
-    if (category !== 'all') params.set('category', category);
-    if (sortBy !== 'default') params.set('sort', sortBy);
-    if (searchQuery) params.set('search', searchQuery);
+    // Update URL to reflect category change
+    const newSearchParams = new URLSearchParams(location.split('?')[1] || '');
+    if (category === 'all') {
+      newSearchParams.delete('category');
+    } else {
+      newSearchParams.set('category', category);
+    }
     
-    const newUrl = params.toString() ? `/browse?${params.toString()}` : '/browse';
+    const newUrl = newSearchParams.toString() 
+      ? `/browse?${newSearchParams.toString()}` 
+      : '/browse';
     setLocation(newUrl);
   };
 
