@@ -65,12 +65,12 @@ export default function Home() {
                   <Link href="/register">Start Selling</Link>
                 </Button>
                 <Button
-                  asChild
                   size="lg"
                   variant="outline"
                   className="border-white text-white hover:bg-white hover:text-primary"
+                  onClick={() => setLocation('/browse')}
                 >
-                  <Link href="/browse">Browse Products</Link>
+                  Browse Products
                 </Button>
               </div>
             </div>
