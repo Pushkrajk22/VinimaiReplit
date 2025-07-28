@@ -29,9 +29,15 @@ export default function Browse() {
   const [selectedCategory, setSelectedCategory] = React.useState('all');
   const [sortBy, setSortBy] = React.useState('default');
 
-  // Parse search query from URL
+  // Parse search query and category from URL
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const searchQuery = searchParams.get('search') || '';
+  const urlCategory = searchParams.get('category') || 'all';
+  
+  // Initialize selected category from URL
+  React.useEffect(() => {
+    setSelectedCategory(urlCategory);
+  }, [urlCategory]);
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {

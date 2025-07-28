@@ -23,12 +23,87 @@ export function Header() {
   const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const [suggestions, setSuggestions] = React.useState<Array<{text: string, category: string, categoryLabel: string}>>([]);
+
+  // Search suggestion data
+  const searchData = [
+    // Electronics
+    { keywords: ['mobile', 'phone', 'smartphone', 'iphone', 'android', 'samsung'], category: 'electronics', categoryLabel: 'Electronics' },
+    { keywords: ['laptop', 'computer', 'macbook', 'dell', 'hp', 'lenovo'], category: 'electronics', categoryLabel: 'Electronics' },
+    { keywords: ['tablet', 'ipad', 'tab'], category: 'electronics', categoryLabel: 'Electronics' },
+    { keywords: ['headphones', 'earphones', 'airpods', 'headset'], category: 'electronics', categoryLabel: 'Electronics' },
+    { keywords: ['camera', 'dslr', 'canon', 'nikon', 'sony'], category: 'electronics', categoryLabel: 'Electronics' },
+    { keywords: ['tv', 'television', 'smart tv', 'led', 'oled'], category: 'electronics', categoryLabel: 'Electronics' },
+    { keywords: ['watch', 'smartwatch', 'apple watch', 'fitness tracker'], category: 'electronics', categoryLabel: 'Electronics' },
+    
+    // Fashion
+    { keywords: ['shirt', 'tshirt', 't-shirt', 'top'], category: 'fashion', categoryLabel: 'Fashion' },
+    { keywords: ['dress', 'gown', 'frock'], category: 'fashion', categoryLabel: 'Fashion' },
+    { keywords: ['shoes', 'sneakers', 'boots', 'sandals', 'heels'], category: 'fashion', categoryLabel: 'Fashion' },
+    { keywords: ['jeans', 'pants', 'trousers'], category: 'fashion', categoryLabel: 'Fashion' },
+    { keywords: ['jacket', 'coat', 'blazer'], category: 'fashion', categoryLabel: 'Fashion' },
+    { keywords: ['bag', 'handbag', 'backpack', 'purse'], category: 'fashion', categoryLabel: 'Fashion' },
+    { keywords: ['jewelry', 'necklace', 'earrings', 'ring'], category: 'fashion', categoryLabel: 'Fashion' },
+    
+    // Home & Garden
+    { keywords: ['chair', 'sofa', 'couch', 'seating'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    { keywords: ['table', 'dining table', 'coffee table', 'desk'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    { keywords: ['bed', 'mattress', 'pillow'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    { keywords: ['lamp', 'light', 'lighting'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    { keywords: ['kitchen', 'cookware', 'utensils'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    { keywords: ['plant', 'flowers', 'garden', 'pot'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    { keywords: ['decoration', 'decor', 'art', 'frame'], category: 'home_garden', categoryLabel: 'Home & Garden' },
+    
+    // Sports
+    { keywords: ['sports', 'fitness', 'gym', 'exercise'], category: 'sports', categoryLabel: 'Sports' },
+    { keywords: ['football', 'soccer', 'cricket', 'basketball'], category: 'sports', categoryLabel: 'Sports' },
+    { keywords: ['cycling', 'bicycle', 'bike'], category: 'sports', categoryLabel: 'Sports' },
+    { keywords: ['running', 'jogging', 'marathon'], category: 'sports', categoryLabel: 'Sports' },
+    { keywords: ['yoga', 'meditation', 'wellness'], category: 'sports', categoryLabel: 'Sports' },
+    { keywords: ['outdoor', 'camping', 'hiking'], category: 'sports', categoryLabel: 'Sports' }
+  ];
+
+  const getSuggestions = (query: string) => {
+    if (!query.trim()) return [];
+    
+    const lowerQuery = query.toLowerCase();
+    const matches = new Set<{text: string, category: string, categoryLabel: string}>();
+    
+    searchData.forEach(item => {
+      item.keywords.forEach(keyword => {
+        if (keyword.includes(lowerQuery) || lowerQuery.includes(keyword)) {
+          matches.add({
+            text: keyword,
+            category: item.category,
+            categoryLabel: item.categoryLabel
+          });
+        }
+      });
+    });
+    
+    return Array.from(matches).slice(0, 6); // Limit to 6 suggestions
+  };
+
+  const handleSearchInputChange = (value: string) => {
+    setSearchQuery(value);
+    const newSuggestions = getSuggestions(value);
+    setSuggestions(newSuggestions);
+    setShowSuggestions(value.length > 0 && newSuggestions.length > 0);
+  };
+
+  const handleSuggestionClick = (suggestion: {text: string, category: string, categoryLabel: string}) => {
+    setLocation(`/browse?category=${suggestion.category}&search=${encodeURIComponent(suggestion.text)}`);
+    setSearchQuery('');
+    setShowSuggestions(false);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       setLocation(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery(''); // Clear search input after search
+      setSearchQuery('');
+      setShowSuggestions(false);
     }
   };
 
@@ -55,19 +130,42 @@ export function Header() {
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-lg mx-4 hidden md:block">
+          <div className="flex-1 max-w-lg mx-4 hidden md:block relative">
             <form onSubmit={handleSearch}>
               <div className="relative">
                 <Input
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onFocus={() => setShowSuggestions(searchQuery.length > 0 && suggestions.length > 0)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   className="w-full pl-10"
                 />
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               </div>
             </form>
+            
+            {/* Search Suggestions Dropdown */}
+            {showSuggestions && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 mt-1">
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Search className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-900">{suggestion.text}</span>
+                    </div>
+                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {suggestion.categoryLabel}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Navigation */}
@@ -170,7 +268,7 @@ export function Header() {
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
                   className="flex-1"
                   autoFocus
                 />
