@@ -98,12 +98,17 @@ export function Header() {
   };
 
   const handleSuggestionClick = (suggestion: {text: string, category: string, categoryLabel: string}) => {
-    const newUrl = `/browse?category=${suggestion.category}&search=${encodeURIComponent(suggestion.text)}`;
-    console.log('Suggestion clicked:', suggestion, 'Navigating to:', newUrl);
-    // Force navigation by using window.location for debugging
-    window.location.href = newUrl;
     setSearchQuery('');
     setShowSuggestions(false);
+    
+    // Navigate to browse page with parameters
+    const params = new URLSearchParams();
+    params.set('category', suggestion.category);
+    params.set('search', suggestion.text);
+    const newUrl = `/browse?${params.toString()}`;
+    
+    console.log('Suggestion clicked:', suggestion, 'Navigating to:', newUrl);
+    setLocation(newUrl);
   };
 
   const handleSearch = (e: React.FormEvent) => {

@@ -37,7 +37,10 @@ export default function Browse() {
   
   // Initialize selected category from URL and handle URL changes
   React.useEffect(() => {
-    console.log('Browse page - Location:', location, 'URL Category:', urlCategory, 'Setting selectedCategory to:', urlCategory);
+    console.log('Browse page - Full location:', location);
+    console.log('Browse page - Search params:', searchParams.toString());
+    console.log('Browse page - URL Category:', urlCategory, 'Search Query:', searchQuery);
+    console.log('Browse page - Setting selectedCategory to:', urlCategory);
     setSelectedCategory(urlCategory);
   }, [location]); // Only depend on location to avoid infinite loops
 
