@@ -69,6 +69,21 @@ export default function Browse() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Additional effect to monitor URL changes and force state updates
+  React.useEffect(() => {
+    const checkUrlChanges = () => {
+      const actualParams = new URLSearchParams(window.location.search);
+      const actualCategory = actualParams.get('category') || 'all';
+      if (actualCategory !== selectedCategory) {
+        console.log('URL changed - updating category from', selectedCategory, 'to', actualCategory);
+        setSelectedCategory(actualCategory);
+      }
+    };
+    
+    const interval = setInterval(checkUrlChanges, 500);
+    return () => clearInterval(interval);
+  }, [selectedCategory]);
+
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
       setLocation('/login');
@@ -198,7 +213,18 @@ export default function Browse() {
     const newUrl = `/browse?${params.toString()}`;
     
     console.log('Browse suggestion clicked:', suggestion, 'Navigating to:', newUrl);
+    
+    // Use multiple navigation methods to ensure it works
     setLocation(newUrl);
+    
+    // Also use native navigation as fallback
+    setTimeout(() => {
+      if (window.location.pathname + window.location.search !== newUrl) {
+        console.log('Fallback navigation triggered for browse suggestion');
+        window.history.pushState({}, '', newUrl);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+    }, 100);
   };
 
   return (
