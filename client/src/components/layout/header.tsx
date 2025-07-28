@@ -61,7 +61,12 @@ export function Header() {
     { keywords: ['cycling', 'bicycle', 'bike'], category: 'sports', categoryLabel: 'Sports' },
     { keywords: ['running', 'jogging', 'marathon'], category: 'sports', categoryLabel: 'Sports' },
     { keywords: ['yoga', 'meditation', 'wellness'], category: 'sports', categoryLabel: 'Sports' },
-    { keywords: ['outdoor', 'camping', 'hiking'], category: 'sports', categoryLabel: 'Sports' }
+    { keywords: ['outdoor', 'camping', 'hiking'], category: 'sports', categoryLabel: 'Sports' },
+    
+    // Books
+    { keywords: ['book', 'novel', 'textbook', 'comic', 'magazine'], category: 'books', categoryLabel: 'Books' },
+    { keywords: ['fiction', 'non-fiction', 'biography', 'history'], category: 'books', categoryLabel: 'Books' },
+    { keywords: ['education', 'study', 'learning', 'academic'], category: 'books', categoryLabel: 'Books' }
   ];
 
   const getSuggestions = (query: string) => {
@@ -90,6 +95,7 @@ export function Header() {
     const newSuggestions = getSuggestions(value);
     setSuggestions(newSuggestions);
     setShowSuggestions(value.length > 0 && newSuggestions.length > 0);
+    console.log('Search input:', value, 'Suggestions:', newSuggestions, 'Show:', value.length > 0 && newSuggestions.length > 0);
   };
 
   const handleSuggestionClick = (suggestion: {text: string, category: string, categoryLabel: string}) => {
@@ -139,7 +145,7 @@ export function Header() {
                   value={searchQuery}
                   onChange={(e) => handleSearchInputChange(e.target.value)}
                   onFocus={() => setShowSuggestions(searchQuery.length > 0 && suggestions.length > 0)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
                   className="w-full pl-10"
                 />
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -147,11 +153,12 @@ export function Header() {
             </form>
             
             {/* Search Suggestions Dropdown */}
-            {showSuggestions && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 mt-1">
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={index}
+                    onMouseDown={(e) => e.preventDefault()} // Prevent blur from firing before click
                     onClick={() => handleSuggestionClick(suggestion)}
                     className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center justify-between"
                   >

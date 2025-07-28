@@ -13,6 +13,7 @@ const categories = [
   { id: 'fashion', label: 'Fashion' },
   { id: 'home_garden', label: 'Home & Garden' },
   { id: 'sports', label: 'Sports' },
+  { id: 'books', label: 'Books' },
 ];
 
 const sortOptions = [
