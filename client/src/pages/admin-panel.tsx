@@ -35,6 +35,14 @@ export default function AdminPanel() {
   const [currentView, setCurrentView] = useState<'products' | 'orders' | 'returns' | 'analytics'>('products');
   const [orderFilter, setOrderFilter] = useState<'all' | 'active' | 'completed'>('all');
 
+  // Scroll to specific section helper
+  const scrollToSection = (section: string) => {
+    const element = document.getElementById(section);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // Fetch pending products
   const { data: pendingProducts } = useQuery({
     queryKey: ['/api/admin/products/pending'],
@@ -236,7 +244,10 @@ export default function AdminPanel() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => setCurrentView('products')}
+            onClick={() => {
+              setCurrentView('products');
+              setTimeout(() => scrollToSection('products-section'), 100);
+            }}
           >
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -254,6 +265,7 @@ export default function AdminPanel() {
             onClick={() => {
               setCurrentView('orders');
               setOrderFilter('all');
+              setTimeout(() => scrollToSection('orders-section'), 100);
             }}
           >
             <CardContent className="p-6">
@@ -272,6 +284,7 @@ export default function AdminPanel() {
             onClick={() => {
               setCurrentView('orders');
               setOrderFilter('active');
+              setTimeout(() => scrollToSection('orders-section'), 100);
             }}
           >
             <CardContent className="p-6">
@@ -290,6 +303,7 @@ export default function AdminPanel() {
             onClick={() => {
               setCurrentView('orders');
               setOrderFilter('completed');
+              setTimeout(() => scrollToSection('orders-section'), 100);
             }}
           >
             <CardContent className="p-6">
@@ -355,7 +369,7 @@ export default function AdminPanel() {
           </TabsList>
 
           {/* Product Approval Tab */}
-          <TabsContent value="products" className="space-y-6">
+          <TabsContent value="products" className="space-y-6" id="products-section">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Pending Product Approvals</h2>
               <Badge variant="outline">
@@ -556,7 +570,7 @@ export default function AdminPanel() {
           </TabsContent>
 
           {/* Order Management Tab */}
-          <TabsContent value="orders" className="space-y-6">
+          <TabsContent value="orders" className="space-y-6" id="orders-section">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Order Management</h2>
               <div className="flex gap-2">
@@ -685,7 +699,7 @@ export default function AdminPanel() {
           </TabsContent>
 
           {/* Returns Tab */}
-          <TabsContent value="returns" className="space-y-6">
+          <TabsContent value="returns" className="space-y-6" id="returns-section">
             <h2 className="text-2xl font-bold">Return Requests</h2>
             
             <div className="grid gap-6">

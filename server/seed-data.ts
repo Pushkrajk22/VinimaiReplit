@@ -97,8 +97,77 @@ export async function seedDatabase() {
       }
     ];
 
+    // Create pending products for admin approval with diverse media
+    const pendingProducts = [
+      {
+        title: "Samsung Galaxy S24 Ultra - Brand New",
+        description: "Brand new Samsung Galaxy S24 Ultra, 512GB, Titanium Black. Sealed box with warranty. Latest flagship with S Pen included.",
+        price: "125000",
+        category: "electronics" as const,
+        images: ["/attached_assets/Screenshot_20250728_130733_Replit_1753688281606.jpg", "/attached_assets/image_1753686604453.png"],
+        sellerId,
+        status: "pending" as const,
+        isAvailable: true
+      },
+      {
+        title: "Designer Leather Handbag - Luxury",
+        description: "Authentic designer leather handbag in perfect condition. Used only twice for special occasions. Comes with dust bag and authenticity certificate.",
+        price: "45000",
+        category: "fashion" as const,
+        images: ["/attached_assets/Screenshot_20250728_151656_Replit_1753696032334.jpg", "/attached_assets/Screenshot_20250728_194216_Replit_1753711950125.jpg"],
+        sellerId,
+        status: "pending" as const,
+        isAvailable: true
+      },
+      {
+        title: "Gaming Laptop - RTX 4080 Setup",
+        description: "High-performance gaming laptop with RTX 4080, Intel i9, 32GB RAM, 1TB SSD. Perfect for gaming and content creation. Barely used.",
+        price: "180000",
+        category: "electronics" as const,
+        images: ["/attached_assets/Screenshot_20250728_214127_Replit_1753719097573.jpg", "/attached_assets/Screenshot_20250728_214600_Replit_1753719372492.jpg"],
+        sellerId,
+        status: "pending" as const,
+        isAvailable: true
+      },
+      {
+        title: "Vintage Dining Set - 6 Chairs",
+        description: "Beautiful vintage wooden dining set with 6 matching chairs. Solid teak wood construction. Perfect for classic home decor enthusiasts.",
+        price: "35000",
+        category: "home_garden" as const,
+        images: ["/attached_assets/Screenshot_20250728_215316_Replit_1753719854299.jpg"],
+        sellerId,
+        status: "pending" as const,
+        isAvailable: true
+      },
+      {
+        title: "Professional Tennis Racket Set",
+        description: "Professional grade tennis racket with carrying case and extra strings. Used by intermediate level player. Wilson Pro Staff series.",
+        price: "15000",
+        category: "sports" as const,
+        images: ["/attached_assets/Screenshot_20250728_215649_Replit_1753720020699.jpg", "/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
+        sellerId,
+        status: "pending" as const,
+        isAvailable: true
+      },
+      {
+        title: "Medical Textbook Collection - MBBS",
+        description: "Complete set of MBBS medical textbooks including Harrison's, Robbins, Netter's Atlas. All books in excellent condition with minimal highlighting.",
+        price: "25000",
+        category: "books" as const,
+        images: ["/attached_assets/image_1753686604453.png"],
+        sellerId,
+        status: "pending" as const,
+        isAvailable: true
+      }
+    ];
+
+    // Insert approved products first
     const insertedProducts = await db.insert(products).values(sampleProducts).returning();
-    console.log(`Created ${insertedProducts.length} sample products`);
+    console.log(`Created ${insertedProducts.length} approved products`);
+
+    // Insert pending products for admin approval
+    const insertedPendingProducts = await db.insert(products).values(pendingProducts).returning();
+    console.log(`Created ${insertedPendingProducts.length} pending products`);
 
     // Get buyer and seller IDs
     const buyerId = insertedUsers.find(u => u.username === "buyer1")?.id;
