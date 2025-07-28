@@ -64,14 +64,12 @@ export default function Home() {
                 <Button asChild size="lg" className="bg-white text-primary hover:bg-gray-100">
                   <Link href="/register">Start Selling</Link>
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-primary"
+                <button 
+                  className="px-6 py-3 text-lg border-2 border-white text-white hover:bg-white hover:text-blue-600 rounded-md transition-colors"
                   onClick={() => setLocation('/browse')}
                 >
                   Browse Products
-                </Button>
+                </button>
               </div>
             </div>
             <div className="relative hidden lg:block">
