@@ -1,7 +1,19 @@
 import React from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export function Footer() {
+  const [, setLocation] = useLocation();
+
+  const handleNavigation = (href: string) => {
+    setLocation(href);
+    // Scroll to top of page smoothly
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
+  };
   return (
     <footer className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,9 +43,9 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">For Buyers</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/browse" className="hover:text-white">Browse Products</Link></li>
-              <li><Link href="/track-orders" className="hover:text-white">Track Orders</Link></li>
-              <li><Link href="/return-policy" className="hover:text-white">Return Policy</Link></li>
+              <li><button onClick={() => handleNavigation('/browse')} className="hover:text-white">Browse Products</button></li>
+              <li><button onClick={() => handleNavigation('/track-orders')} className="hover:text-white">Track Orders</button></li>
+              <li><button onClick={() => handleNavigation('/return-policy')} className="hover:text-white">Return Policy</button></li>
             </ul>
           </div>
 
@@ -41,8 +53,8 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">For Sellers</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/list-product" className="hover:text-white">List Product</Link></li>
-              <li><Link href="/seller-guidelines" className="hover:text-white">Seller Guidelines</Link></li>
+              <li><button onClick={() => handleNavigation('/list-product')} className="hover:text-white">List Product</button></li>
+              <li><button onClick={() => handleNavigation('/seller-guidelines')} className="hover:text-white">Seller Guidelines</button></li>
             </ul>
           </div>
 
@@ -50,8 +62,8 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
-              <li><Link href="/community-guidelines" className="hover:text-white">Community Guidelines</Link></li>
+              <li><button onClick={() => handleNavigation('/contact')} className="hover:text-white">Contact Us</button></li>
+              <li><button onClick={() => handleNavigation('/community-guidelines')} className="hover:text-white">Community Guidelines</button></li>
             </ul>
           </div>
         </div>
@@ -61,8 +73,8 @@ export function Footer() {
             &copy; 2024 Vinimai. All rights reserved.
           </p>
           <div className="flex space-x-6 text-sm text-gray-400 mt-4 sm:mt-0">
-            <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
-            <Link href="/cookie-policy" className="hover:text-white">Cookie Policy</Link>
+            <button onClick={() => handleNavigation('/privacy-policy')} className="hover:text-white">Privacy Policy</button>
+            <button onClick={() => handleNavigation('/cookie-policy')} className="hover:text-white">Cookie Policy</button>
           </div>
         </div>
       </div>
