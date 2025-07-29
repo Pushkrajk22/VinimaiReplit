@@ -98,6 +98,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     if (product) {
       setSelectedProduct(product);
       setOfferModalOpen(true);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -106,6 +107,8 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
       setLocation('/login');
       return;
     }
+    
+    window.scrollTo(0, 0);
     
     // In a real app, this would open a checkout flow
     const deliveryAddress = prompt("Enter your delivery address:");

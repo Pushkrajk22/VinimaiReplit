@@ -73,6 +73,7 @@ export function OfferModal({ product, open, onOpenChange }: OfferModalProps) {
       });
       form.reset();
       onOpenChange(false);
+      window.scrollTo(0, 0);
       queryClient.invalidateQueries({ queryKey: ['/api/offers'] });
     },
     onError: (error: any) => {

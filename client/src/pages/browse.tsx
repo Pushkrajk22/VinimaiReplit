@@ -78,6 +78,7 @@ export default function Browse() {
     }
     setSelectedProduct(product);
     setOfferModalOpen(true);
+    window.scrollTo(0, 0);
   };
 
   const handleCategoryChange = (category: string) => {
