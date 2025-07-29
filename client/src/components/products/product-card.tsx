@@ -47,9 +47,13 @@ export function ProductCard({ product, onMakeOffer }: ProductCardProps) {
     }
   };
 
+  const handleCardClick = () => {
+    window.scrollTo(0, 0);
+  };
+
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <Link href={`/products/${product.id}`} className="block">
+      <Link href={`/products/${product.id}`} className="block" onClick={handleCardClick}>
         <div className="relative">
           {product.images && product.images.length > 0 ? (
             <img
