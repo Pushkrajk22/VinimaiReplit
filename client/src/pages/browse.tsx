@@ -41,23 +41,31 @@ export default function Browse() {
   
   // Initialize selected category from URL with auto-detection
   React.useEffect(() => {
-    let urlCategory = searchParams.get('category');
+    const currentSearchParams = new URLSearchParams(location.split('?')[1] || '');
+    let urlCategory = currentSearchParams.get('category');
+    const currentSearchQuery = currentSearchParams.get('search') || '';
+    
+    console.log('Current location:', location);
+    console.log('Parsed URL category:', urlCategory, 'search:', currentSearchQuery);
     
     // If no category specified but we have a search query, try to auto-detect
-    if (!urlCategory && searchQuery) {
-      const detectedCategory = getCategorySuggestion(searchQuery);
+    if (!urlCategory && currentSearchQuery) {
+      const detectedCategory = getCategorySuggestion(currentSearchQuery);
       if (detectedCategory) {
         urlCategory = detectedCategory;
         // Update URL to include detected category
         const newParams = new URLSearchParams(location.split('?')[1] || '');
         newParams.set('category', detectedCategory);
         const newUrl = `/browse?${newParams.toString()}`;
+        console.log('Auto-detecting category from search:', currentSearchQuery, '→', detectedCategory, 'New URL:', newUrl);
         setLocation(newUrl, { replace: true });
+        return; // Exit early, the effect will run again with the new location
       }
     }
     
+    console.log('Setting category from URL:', urlCategory || 'all');
     setSelectedCategory(urlCategory || 'all');
-  }, [location, searchQuery]);
+  }, [location]);
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
