@@ -49,59 +49,63 @@ export function ProductCard({ product, onMakeOffer }: ProductCardProps) {
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <div className="relative">
-        {product.images && product.images.length > 0 ? (
-          <img
-            src={product.images[0]}
-            alt={product.title}
-            className="w-full h-48 object-cover rounded-t-lg"
-          />
-        ) : (
-          <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-            <span className="text-gray-400">No Image</span>
-          </div>
-        )}
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <Badge className={getStatusColor(product.isAvailable ? 'available' : 'sold')}>
-            {product.isAvailable ? 'Available' : 'Sold'}
-          </Badge>
-          <Badge className={getCategoryColor(product.category)}>
-            {product.category.replace('_', ' ')}
-          </Badge>
+      <Link href={`/products/${product.id}`} className="block">
+        <div className="relative">
+          {product.images && product.images.length > 0 ? (
+            <img
+              src={product.images[0]}
+              alt={product.title}
+              className="w-full h-48 object-cover rounded-t-lg"
+            />
+          ) : (
+            <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
+              <span className="text-gray-400">No Image</span>
+            </div>
+          )}
         </div>
         
-        <Link href={`/products/${product.id}`}>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Badge className={getStatusColor(product.isAvailable ? 'available' : 'sold')}>
+              {product.isAvailable ? 'Available' : 'Sold'}
+            </Badge>
+            <Badge className={getCategoryColor(product.category)}>
+              {product.category.replace('_', ' ')}
+            </Badge>
+          </div>
+          
           <h3 className="font-semibold text-gray-900 mb-1 hover:text-primary cursor-pointer">
             {product.title}
           </h3>
-        </Link>
-        
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-          {product.description}
-        </p>
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-xl font-bold text-gray-900">
-              {formatPrice(product.price)}
-            </span>
-            <div className="text-xs text-gray-500">+ 3% platform fee</div>
-          </div>
           
-          {product.isAvailable && onMakeOffer && (
-            <Button
-              onClick={() => onMakeOffer(product)}
-              size="sm"
-              className="bg-primary hover:bg-primary/90"
-            >
-              Make Offer
-            </Button>
-          )}
-        </div>
-      </CardContent>
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            {product.description}
+          </p>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xl font-bold text-gray-900">
+                {formatPrice(product.price)}
+              </span>
+              <div className="text-xs text-gray-500">+ 3% platform fee</div>
+            </div>
+            
+            {product.isAvailable && onMakeOffer && (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onMakeOffer(product);
+                }}
+                size="sm"
+                className="bg-primary hover:bg-primary/90"
+              >
+                Make Offer
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Link>
     </Card>
   );
 }
