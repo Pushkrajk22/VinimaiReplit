@@ -36,7 +36,30 @@ app.use((req, res, next) => {
   next();
 });
 
+// Auto-seed database on startup if empty
+async function initializeDatabase() {
+  try {
+    const { storage } = await import("./storage");
+    
+    // Check if admin user exists
+    const adminUser = await storage.getUserByMobile("9999999999");
+    if (!adminUser) {
+      console.log("🌱 Database is empty, seeding with demo data...");
+      const { seedDatabase } = await import("./seed-data");
+      await seedDatabase();
+      console.log("✅ Database seeded successfully!");
+    } else {
+      console.log("📊 Database already initialized");
+    }
+  } catch (error) {
+    console.error("❌ Database initialization error:", error);
+  }
+}
+
 (async () => {
+  // Initialize database before starting server
+  await initializeDatabase();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

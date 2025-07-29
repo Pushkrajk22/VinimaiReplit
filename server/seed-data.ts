@@ -7,7 +7,7 @@ export async function seedDatabase() {
     console.log("Seeding database with sample data...");
 
     // Create sample users
-    const hashedPassword = await bcrypt.hash("demo123", 10);
+    const hashedPassword = await bcrypt.hash("admin123", 10);
 
     const sampleUsers = [
       {

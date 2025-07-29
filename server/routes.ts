@@ -749,6 +749,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database seeding endpoint (admin only)
+  app.post("/api/admin/seed-database", async (req: Request, res: Response) => {
+    try {
+      // Check if admin user already exists
+      const existingAdmin = await storage.getUserByMobile("9999999999");
+      if (existingAdmin) {
+        return res.json({ message: "Database already seeded" });
+      }
+
+      // Import and run seed function
+      const { seedDatabase } = await import("./seed-data");
+      await seedDatabase();
+      
+      res.json({ message: "Database seeded successfully" });
+    } catch (error: any) {
+      console.error("Seeding error:", error);
+      res.status(500).json({ message: "Error seeding database: " + error.message });
+    }
+  });
+
   // Razorpay payment routes
   app.post("/api/payments/create-order", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
