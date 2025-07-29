@@ -94,6 +94,26 @@ export async function seedDatabase() {
         sellerId,
         status: "approved" as const,
         isAvailable: true
+      },
+      {
+        title: "Comfortable Office Chair - Ergonomic",
+        description: "Ergonomic office chair with lumbar support. Perfect for long working hours. Adjustable height and armrests.",
+        price: "12000",
+        category: "home_garden" as const,
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
+        sellerId,
+        status: "approved" as const,
+        isAvailable: true
+      },
+      {
+        title: "Garden Furniture Set - Outdoor",
+        description: "Beautiful outdoor garden furniture set with table and 4 chairs. Weather-resistant material, perfect for patios.",
+        price: "25000",
+        category: "home_garden" as const,
+        images: ["/attached_assets/IMG-20250628-WA0001_1753533870884.jpg"],
+        sellerId,
+        status: "approved" as const,
+        isAvailable: true
       }
     ];
 

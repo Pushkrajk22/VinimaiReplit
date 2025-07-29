@@ -199,17 +199,8 @@ export default function Browse() {
     
     console.log('Browse suggestion clicked:', suggestion, 'Navigating to:', newUrl);
     
-    // Use multiple navigation methods to ensure it works
-    setLocation(newUrl);
-    
-    // Also use native navigation as fallback
-    setTimeout(() => {
-      if (window.location.pathname + window.location.search !== newUrl) {
-        console.log('Fallback navigation triggered for browse suggestion');
-        window.history.pushState({}, '', newUrl);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }
-    }, 100);
+    // Force immediate navigation using window.location.href
+    window.location.href = newUrl;
   };
 
   return (
@@ -256,9 +247,10 @@ export default function Browse() {
                   }
                   
                   const newUrl = `/browse?${params.toString()}`;
-                  setLocation(newUrl);
-                  setBrowseSearchQuery('');
-                  setShowBrowseSuggestions(false);
+                  console.log('Browse form submit:', browseSearchQuery.trim(), 'Detected category:', detectedCategory, 'URL:', newUrl);
+                  
+                  // Force immediate navigation
+                  window.location.href = newUrl;
                 }
               }}>
                 <div className="relative">
