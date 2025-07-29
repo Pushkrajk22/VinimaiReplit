@@ -125,7 +125,33 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      setLocation(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+      const trimmedQuery = searchQuery.trim();
+      
+      // Auto-detect category for direct search
+      const lowerQuery = trimmedQuery.toLowerCase();
+      let detectedCategory = '';
+      
+      searchData.forEach(item => {
+        item.keywords.forEach(keyword => {
+          if (keyword.includes(lowerQuery) || lowerQuery.includes(keyword)) {
+            if (!detectedCategory) { // Take the first match
+              detectedCategory = item.category;
+            }
+          }
+        });
+      });
+      
+      // Build URL with auto-detected category
+      const params = new URLSearchParams();
+      params.set('search', trimmedQuery);
+      if (detectedCategory) {
+        params.set('category', detectedCategory);
+      }
+      
+      const newUrl = `/browse?${params.toString()}`;
+      console.log('Direct search:', trimmedQuery, 'Detected category:', detectedCategory, 'URL:', newUrl);
+      
+      setLocation(newUrl);
       setSearchQuery('');
       setShowSuggestions(false);
     }

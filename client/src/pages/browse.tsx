@@ -39,11 +39,25 @@ export default function Browse() {
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const searchQuery = searchParams.get('search') || '';
   
-  // Initialize selected category from URL
+  // Initialize selected category from URL with auto-detection
   React.useEffect(() => {
-    const urlCategory = searchParams.get('category') || 'all';
-    setSelectedCategory(urlCategory);
-  }, [location]);
+    let urlCategory = searchParams.get('category');
+    
+    // If no category specified but we have a search query, try to auto-detect
+    if (!urlCategory && searchQuery) {
+      const detectedCategory = getCategorySuggestion(searchQuery);
+      if (detectedCategory) {
+        urlCategory = detectedCategory;
+        // Update URL to include detected category
+        const newParams = new URLSearchParams(location.split('?')[1] || '');
+        newParams.set('category', detectedCategory);
+        const newUrl = `/browse?${newParams.toString()}`;
+        setLocation(newUrl, { replace: true });
+      }
+    }
+    
+    setSelectedCategory(urlCategory || 'all');
+  }, [location, searchQuery]);
 
   const handleMakeOffer = (product: Product) => {
     if (!isAuthenticated) {
