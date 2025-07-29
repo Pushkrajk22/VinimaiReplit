@@ -73,12 +73,24 @@ export default function Home() {
               </div>
             </div>
             <div className="relative hidden lg:block">
-              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="flex items-center justify-center space-x-8">
-                  <Smartphone className="h-16 w-16 text-white" />
-                  <Handshake className="h-16 w-16 text-white" />
-                  <Shield className="h-16 w-16 text-white" />
-                  <Truck className="h-16 w-16 text-white" />
+              <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8">
+                <div className="grid grid-cols-2 gap-6 text-center">
+                  <div className="p-4">
+                    <div className="text-3xl font-bold text-white mb-2">1000+</div>
+                    <div className="text-blue-100 text-sm">Happy Users</div>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-3xl font-bold text-white mb-2">50+</div>
+                    <div className="text-blue-100 text-sm">Products Sold</div>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-3xl font-bold text-white mb-2">5★</div>
+                    <div className="text-blue-100 text-sm">User Rating</div>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-3xl font-bold text-white mb-2">24/7</div>
+                    <div className="text-blue-100 text-sm">Support</div>
+                  </div>
                 </div>
               </div>
             </div>
