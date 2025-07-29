@@ -8,19 +8,21 @@ import { Button } from "@/components/ui/button";
 interface ProductGridProps {
   category?: string;
   search?: string;
+  sortBy?: string;
   onMakeOffer?: (product: Product) => void;
 }
 
-export function ProductGrid({ category, search, onMakeOffer }: ProductGridProps) {
+export function ProductGrid({ category, search, sortBy, onMakeOffer }: ProductGridProps) {
   const [page, setPage] = React.useState(0);
   const limit = 20;
 
   const { data: products, isLoading, error } = useQuery({
-    queryKey: ['/api/products', { category, search, limit, offset: page * limit }],
+    queryKey: ['/api/products', { category, search, sortBy, limit, offset: page * limit }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (category) params.append('category', category);
       if (search) params.append('search', search);
+      if (sortBy) params.append('sort', sortBy);
       params.append('limit', limit.toString());
       params.append('offset', (page * limit).toString());
 

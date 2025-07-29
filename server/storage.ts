@@ -6,7 +6,7 @@ import {
   type Rating, type InsertRating, type ProductModification
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, like, or } from "drizzle-orm";
+import { eq, and, desc, asc, like, or } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -18,7 +18,7 @@ export interface IStorage {
 
   // Product management
   getProduct(id: string): Promise<Product | undefined>;
-  getProducts(limit?: number, offset?: number, category?: string, search?: string): Promise<Product[]>;
+  getProducts(limit?: number, offset?: number, category?: string, search?: string, sort?: string): Promise<Product[]>;
   getProductsBySeller(sellerId: string): Promise<Product[]>;
   getPendingProducts(): Promise<Product[]>;
   getApprovedProducts(): Promise<Product[]>;
@@ -107,7 +107,7 @@ export class DatabaseStorage implements IStorage {
     return product || undefined;
   }
 
-  async getProducts(limit = 20, offset = 0, category?: string, search?: string): Promise<Product[]> {
+  async getProducts(limit = 20, offset = 0, category?: string, search?: string, sort?: string): Promise<Product[]> {
     let conditions = [or(eq(products.status, 'approved'), eq(products.status, 'sold'))];
 
     if (category) {
@@ -123,11 +123,21 @@ export class DatabaseStorage implements IStorage {
       );
     }
 
+    // Determine sort order
+    let orderBy;
+    if (sort === 'price_low') {
+      orderBy = asc(products.price);
+    } else if (sort === 'price_high') {
+      orderBy = desc(products.price);
+    } else {
+      orderBy = desc(products.createdAt); // Default sort
+    }
+
     return await db
       .select()
       .from(products)
       .where(and(...conditions))
-      .orderBy(desc(products.createdAt))
+      .orderBy(orderBy)
       .limit(limit)
       .offset(offset);
   }

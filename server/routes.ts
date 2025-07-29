@@ -242,12 +242,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Product routes
   app.get("/api/products", async (req, res) => {
     try {
-      const { limit, offset, category, search } = req.query;
+      const { limit, offset, category, search, sort } = req.query;
       const products = await storage.getProducts(
         Number(limit) || 20,
         Number(offset) || 0,
         category as string,
-        search as string
+        search as string,
+        sort as string
       );
       res.json(products);
     } catch (error: any) {

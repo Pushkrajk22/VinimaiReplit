@@ -39,16 +39,17 @@ export default function Browse() {
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const searchQuery = searchParams.get('search') || '';
   
-  // Initialize selected category from URL with auto-detection
+  // Initialize selected category and sort from URL with auto-detection
   React.useEffect(() => {
     // Force a fresh parse of the current URL
     const currentLocation = window.location.pathname + window.location.search;
     const currentSearchParams = new URLSearchParams(window.location.search);
     let urlCategory = currentSearchParams.get('category');
+    const urlSort = currentSearchParams.get('sort');
     const currentSearchQuery = currentSearchParams.get('search') || '';
     
     console.log('Current window location:', currentLocation);
-    console.log('Parsed URL category:', urlCategory, 'search:', currentSearchQuery);
+    console.log('Parsed URL category:', urlCategory, 'search:', currentSearchQuery, 'sort:', urlSort);
     
     // If no category specified but we have a search query, try to auto-detect
     if (!urlCategory && currentSearchQuery) {
@@ -67,6 +68,7 @@ export default function Browse() {
     
     console.log('Setting category from URL:', urlCategory || 'all');
     setSelectedCategory(urlCategory || 'all');
+    setSortBy(urlSort || 'default');
   }, [location]);
 
   const handleMakeOffer = (product: Product) => {
@@ -390,6 +392,7 @@ export default function Browse() {
         <ProductGrid
           category={selectedCategory === 'all' ? undefined : selectedCategory}
           search={searchQuery}
+          sortBy={sortBy === 'default' ? undefined : sortBy}
           onMakeOffer={handleMakeOffer}
         />
 
