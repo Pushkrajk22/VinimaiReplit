@@ -107,19 +107,10 @@ export function Header() {
     params.set('search', suggestion.text);
     const newUrl = `/browse?${params.toString()}`;
     
-    console.log('Suggestion clicked:', suggestion, 'Navigating to:', newUrl);
+    console.log('Header suggestion clicked:', suggestion, 'Navigating to:', newUrl);
     
-    // Use both setLocation and history.pushState to ensure navigation works
-    setLocation(newUrl, { replace: false });
-    
-    // Also use native navigation as fallback
-    setTimeout(() => {
-      if (window.location.pathname + window.location.search !== newUrl) {
-        console.log('Fallback navigation triggered');
-        window.history.pushState({}, '', newUrl);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }
-    }, 100);
+    // Force immediate navigation
+    window.location.href = newUrl;
   };
 
   const handleSearch = (e: React.FormEvent) => {

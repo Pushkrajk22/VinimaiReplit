@@ -41,11 +41,13 @@ export default function Browse() {
   
   // Initialize selected category from URL with auto-detection
   React.useEffect(() => {
-    const currentSearchParams = new URLSearchParams(location.split('?')[1] || '');
+    // Force a fresh parse of the current URL
+    const currentLocation = window.location.pathname + window.location.search;
+    const currentSearchParams = new URLSearchParams(window.location.search);
     let urlCategory = currentSearchParams.get('category');
     const currentSearchQuery = currentSearchParams.get('search') || '';
     
-    console.log('Current location:', location);
+    console.log('Current window location:', currentLocation);
     console.log('Parsed URL category:', urlCategory, 'search:', currentSearchQuery);
     
     // If no category specified but we have a search query, try to auto-detect
@@ -54,12 +56,12 @@ export default function Browse() {
       if (detectedCategory) {
         urlCategory = detectedCategory;
         // Update URL to include detected category
-        const newParams = new URLSearchParams(location.split('?')[1] || '');
+        const newParams = new URLSearchParams(window.location.search);
         newParams.set('category', detectedCategory);
         const newUrl = `/browse?${newParams.toString()}`;
         console.log('Auto-detecting category from search:', currentSearchQuery, '→', detectedCategory, 'New URL:', newUrl);
-        setLocation(newUrl, { replace: true });
-        return; // Exit early, the effect will run again with the new location
+        window.history.replaceState({}, '', newUrl);
+        // Don't return early, continue to set the category
       }
     }
     
