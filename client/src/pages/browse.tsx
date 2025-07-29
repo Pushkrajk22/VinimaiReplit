@@ -78,7 +78,7 @@ export default function Browse() {
     }
     setSelectedProduct(product);
     setOfferModalOpen(true);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCategoryChange = (category: string) => {

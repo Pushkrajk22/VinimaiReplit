@@ -35,6 +35,11 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
   const [offerModalOpen, setOfferModalOpen] = React.useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(0);
 
+  // Scroll to top when component mounts (when navigating to product details)
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [productId]);
+
   // Fetch product details
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['/api/products', productId],
@@ -98,7 +103,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     if (product) {
       setSelectedProduct(product);
       setOfferModalOpen(true);
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -108,7 +113,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
       return;
     }
     
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // In a real app, this would open a checkout flow
     const deliveryAddress = prompt("Enter your delivery address:");
